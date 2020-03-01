@@ -32,7 +32,7 @@ install: ## Install any specific tooling
 clean: ## Clean the local filesystem
 	rm -fr node_modules
 	rm -fr cdk.out
-	git clean -fdx
+	git clean -fdX
 
 
 ##

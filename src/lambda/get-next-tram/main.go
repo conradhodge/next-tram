@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/arienmalec/alexa-go"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-// Handler will handle the lambda request
-func Handler() (string, error) {
-	return fmt.Sprintf("Hello World"), nil
+// Handler is the lambda hander
+func Handler() (alexa.Response, error) {
+	return alexa.NewSimpleResponse("Saying Hello", "Hello, World"), nil
 }
 
 func main() {

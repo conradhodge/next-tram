@@ -55,10 +55,10 @@ test-cdk: ## Run the CDK tests
 # Deployment targets
 ##
 
-.PHONY: deploy-next-tram
-deploy-next-tram: build ## Create or update the infrastructure on AWS
+.PHONY: deploy
+deploy: build ## Create or update the infrastructure on AWS
 	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack
 
-.PHONY: destroy-next-tram
-destroy-next-tram: build ## Destroy the infrastructure in AWS
+.PHONY: destroy
+destroy: build ## Destroy the infrastructure in AWS
 	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" destroy next-tram-stack

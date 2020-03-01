@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#
+# Git post-checkout hook
+#
+
+file="package-lock.json"
+
+if [[ $(git diff "HEAD@{1}..HEAD@{0}" -- "${file}" | wc -l) -gt 0 ]]; then
+  echo ''
+  echo '😎  [BUILD] Update dependencies'
+  npm ci
+fi

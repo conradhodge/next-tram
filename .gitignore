@@ -1,3 +1,8 @@
+# Go
+src/lambda/*/handler.zip
+src/lambda/*/main
+
+# Typescript
 *.js
 !jest.config.js
 *.d.ts

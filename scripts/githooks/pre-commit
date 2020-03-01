@@ -3,6 +3,13 @@
 # Git pre-commit hook
 #
 
+if ! make vet; then
+    echo ''
+    echo '❌  [FAIL] Vet has failed'
+    echo ''
+    exit 1
+fi
+
 if ! make build; then
     echo ''
     echo '❌  [FAIL] Build has failed'

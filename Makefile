@@ -1,13 +1,16 @@
+AWS_ACCOUNT_ID=431809455209
+AwS_REGION=us-east-1
+
 .DEFAULT_GOAL := explain
 .PHONY: explain
 explain:
 	#### Next tram
-	#   _  _                     _                _                             
-	#  | \| |    ___    __ __   | |_      o O O  | |_      _ _   __ _    _ __   
-	#  | .` |   / -_)   \ \ /   |  _|    o       |  _|    | '_| / _` |  | '  \  
-	#  |_|\_|   \___|   /_\_\   _\__|   TS__[O]  _\__|   _|_|_  \__,_|  |_|_|_| 
-	# _|"""""|_|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_|"""""| 
-	# "`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-' 
+	#   _  _                     _                _
+	#  | \| |    ___    __ __   | |_      o O O  | |_      _ _   __ _    _ __
+	#  | .` |   / -_)   \ \ /   |  _|    o       |  _|    | '_| / _` |  | '  \
+	#  |_|\_|   \___|   /_\_\   _\__|   TS__[O]  _\__|   _|_|_  \__,_|  |_|_|_|
+	# _|"""""|_|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_|"""""|
+	# "`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'
 	#
 	### Targets
 	@cat Makefile* | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -88,8 +91,12 @@ test-cdk: ## Run the CDK tests
 # Deployment targets
 ##
 
+.PHONY: bootstrap
+bootstrap: ## Bootstrap the CDK
+	npx cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AwS_REGION}
+
 .PHONY: deploy
-deploy: build ## Create or update the infrastructure on AWS
+deploy: build bootstrap ## Create or update the infrastructure on AWS
 	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack
 
 .PHONY: destroy

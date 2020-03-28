@@ -99,6 +99,10 @@ bootstrap: ## Bootstrap the CDK
 deploy: build bootstrap ## Create or update the infrastructure on AWS
 	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack
 
+.PHONY: diff
+diff: build ## Compare the infrastructure with stack on AWS
+	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" diff next-tram-stack
+
 .PHONY: destroy
-destroy: build ## Destroy the infrastructure in AWS
+destroy: ## Destroy the infrastructure in AWS
 	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" destroy next-tram-stack

@@ -83,7 +83,7 @@ build-cdk: ## Build the CDK stacks
 test: test-cdk ## Run all the tests
 
 .PHONY: test-cdk
-test-cdk: ## Run the CDK tests
+test-cdk: build-cdk ## Run the CDK tests
 	npm run test
 
 
@@ -98,10 +98,15 @@ bootstrap: ## Bootstrap the CDK
 .PHONY: deploy
 deploy: build bootstrap ## Create or update the infrastructure on AWS
 	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack
+	./scripts/add-alexa-permission.sh
 
 .PHONY: diff
 diff: build ## Compare the infrastructure with stack on AWS
 	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" diff next-tram-stack
+
+.PHONY: synth
+synth: build ## Synthasise the infrastructure stack
+	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" synth next-tram-stack
 
 .PHONY: destroy
 destroy: ## Destroy the infrastructure in AWS

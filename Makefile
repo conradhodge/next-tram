@@ -27,6 +27,7 @@ install: ## Install any specific tooling
 	npm install
 	go get golang.org/x/lint/golint
 	go get github.com/securego/gosec/cmd/gosec
+	go get github.com/golang/mock/mockgen
 
 .PHONY: clean
 clean: ## Clean the local filesystem
@@ -80,7 +81,13 @@ build-cdk: ## Build the CDK stacks
 ##
 
 .PHONY: test
-test: test-cdk ## Run all the tests
+test: test-go test-cdk ## Run all the tests
+
+.PHONY: test-go
+test-go: ## Run the Go tests
+	go generate ./...
+	go test ./... -coverprofile=coverage.out
+	go tool cover -func=coverage.out
 
 .PHONY: test-cdk
 test-cdk: build-cdk ## Run the CDK tests
@@ -91,13 +98,24 @@ test-cdk: build-cdk ## Run the CDK tests
 # Deployment targets
 ##
 
+.PHONY: check-api-credentials
+check-api-credentials: ## Check that the API credentials have been given
+ifeq ($(USERNAME),)
+	@echo "[Error] Please specify a USERNAME for the Traveline API"
+	@exit 1;
+endif
+ifeq ($(PASSWORD),)
+	@echo "[Error] Please specify a PASSWORD for the Traveline API"
+	@exit 1;
+endif
+
 .PHONY: bootstrap
 bootstrap: ## Bootstrap the CDK
 	npx cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AwS_REGION}
 
 .PHONY: deploy
-deploy: build bootstrap ## Create or update the infrastructure on AWS
-	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack
+deploy: check-api-credentials build bootstrap ## Create or update the infrastructure on AWS
+	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack -c travelineApiUsername=${USERNAME} -c travelineApiPassword=${PASSWORD}
 	./scripts/add-alexa-permission.sh
 
 .PHONY: diff

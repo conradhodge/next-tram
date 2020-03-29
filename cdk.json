@@ -1,6 +1,8 @@
 {
   "context": {
     "getNextTramLambdaMemorySize": 128,
-    "getNextTramLambdaTimeout": 10
+    "getNextTramLambdaTimeout": 10,
+    "travelineApiUsername": "",
+    "travelineApiPassword": ""
   }
 }

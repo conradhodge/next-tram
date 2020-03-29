@@ -15,6 +15,8 @@ test("Lambda is created with parameters given", () => {
   new GetNextTramLambda(stack, "TestInstance", {
     account: "999999999999",
     region: "eu-west-2",
+    apiUsername: "api-username",
+    apiPassword: "api-password",
     memorySize: 128,
     timeout: 10
   });
@@ -24,6 +26,12 @@ test("Lambda is created with parameters given", () => {
       Description: "Lambda function that will get the next tram",
       Handler: "main",
       Runtime: "go1.x",
+      Environment: {
+        Variables: {
+          TRAVELINE_API_USERNAME: "api-username",
+          TRAVELINE_API_PASSWORD: "api-password"
+        }
+      },
       MemorySize: 128,
       Timeout: 10
     })
@@ -42,6 +50,8 @@ test("Role is created to execute lambda", () => {
   new GetNextTramLambda(stack, "TestInstance", {
     account: "999999999999",
     region: "eu-west-2",
+    apiUsername: "api-username",
+    apiPassword: "api-password",
     memorySize: 128,
     timeout: 10
   });

@@ -17,6 +17,16 @@ export interface GetNextTramLambdaProps {
   readonly region: string;
 
   /**
+   * The username to use in the Traveline API
+   */
+  readonly apiUsername: string;
+
+  /**
+   * The password to use in the Traveline API
+   */
+  readonly apiPassword: string;
+
+  /**
    * The amount of memory, in MB, that is allocated to the Lambda function.
    */
   readonly memorySize: number
@@ -70,6 +80,10 @@ export class GetNextTramLambda extends Construct {
       runtime: Runtime.GO_1_X,
       memorySize: props.memorySize,
       timeout: Duration.seconds(props.timeout),
+      environment: {
+        TRAVELINE_API_USERNAME: props.apiUsername,
+        TRAVELINE_API_PASSWORD: props.apiPassword
+      },
       role: role
     });
 

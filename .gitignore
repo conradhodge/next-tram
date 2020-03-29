@@ -1,6 +1,8 @@
 # Go
+coverage.out
 src/lambda/*/handler.zip
 src/lambda/*/main
+src/lib/mock
 
 # Typescript
 *.js

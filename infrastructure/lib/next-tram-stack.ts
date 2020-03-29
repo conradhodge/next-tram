@@ -9,6 +9,8 @@ export class NextTramStack extends Stack {
     const getNextTramLambda = new GetNextTramLambda(this, "GetNextTramLambda", {
       account: this.account,
       region: this.region,
+      apiUsername: this.node.tryGetContext("travelineApiUsername"),
+      apiPassword: this.node.tryGetContext("travelineApiPassword"),
       memorySize: this.node.tryGetContext("getNextTramLambdaMemorySize"),
       timeout: this.node.tryGetContext("getNextTramLambdaTimeout")
     });

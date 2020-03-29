@@ -1,4 +1,4 @@
-import { Construct, Duration } from "@aws-cdk/core";
+import { Construct, Duration, CfnOutput } from "@aws-cdk/core";
 import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "@aws-cdk/aws-iam";
 import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
 
@@ -45,7 +45,7 @@ export class GetNextTramLambda extends Construct {
     const name = "get-next-tram";
 
     // Define a policy statement to access the lambda log group
-    const getNextTramLambdaPolicyDocument = new PolicyDocument({
+    const logsPolicyDocument = new PolicyDocument({
       statements: [
         new PolicyStatement({
           actions: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
@@ -58,7 +58,7 @@ export class GetNextTramLambda extends Construct {
     const role = new Role(this, "GetNextTramLambdaRole", {
       roleName: name + "-role",
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
-      inlinePolicies: { getNextTramLambdaPolicyDocument }
+      inlinePolicies: { logsPolicyDocument }
     });
 
     // Define a lambda function that will get the next tram
@@ -71,6 +71,12 @@ export class GetNextTramLambda extends Construct {
       memorySize: props.memorySize,
       timeout: Duration.seconds(props.timeout),
       role: role
+    });
+
+    new CfnOutput(this, "LambdaARN", {
+      description: "Get next tram Lambda ARN",
+      value: lambdaFunction.functionArn,
+      exportName: name + "-arn"
     });
   }
 }

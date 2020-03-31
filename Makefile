@@ -1,6 +1,3 @@
-AWS_ACCOUNT_ID=431809455209
-AwS_REGION=us-east-1
-
 .DEFAULT_GOAL := explain
 .PHONY: explain
 explain:
@@ -98,6 +95,17 @@ test-cdk: build-cdk ## Run the CDK tests
 # Deployment targets
 ##
 
+.PHONY: check-aws-details
+check-aws-details: ## Check that the AWS details have been given
+ifeq ($(AWS_ACCOUNT_ID),)
+	@echo "[Error] Please specify an AWS_ACCOUNT_ID"
+	@exit 1;
+endif
+ifeq ($(AWS_REGION),)
+	@echo "[Error] Please specify an AWS_REGION"
+	@exit 1;
+endif
+
 .PHONY: check-api-credentials
 check-api-credentials: ## Check that the API credentials have been given
 ifeq ($(USERNAME),)
@@ -110,8 +118,8 @@ ifeq ($(PASSWORD),)
 endif
 
 .PHONY: bootstrap
-bootstrap: ## Bootstrap the CDK
-	npx cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AwS_REGION}
+bootstrap: check-aws-details ## Bootstrap the CDK
+	npx cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 
 .PHONY: deploy
 deploy: check-api-credentials build bootstrap ## Create or update the infrastructure on AWS

@@ -1,4 +1,4 @@
-package traveline_test
+package request_test
 
 // The following comment is used by 'go generate ./...' command. DO NOT DELETE!!!
 //go:generate mockgen -destination ../mock/mock_traveline/mock_traveline.go github.com/conradhodge/next-tram/src/lib/traveline API
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/conradhodge/next-tram/src/lib/mock/mock_traveline"
+	"github.com/conradhodge/next-tram/src/lib/request"
 	"github.com/conradhodge/next-tram/src/lib/traveline"
 	"github.com/golang/mock/gomock"
 )
@@ -18,26 +19,35 @@ func TestGetNextTram(t *testing.T) {
 	nextTramTime, _ := time.Parse(time.RFC3339, "2020-03-30T12:34:56.911+01:00")
 
 	tests := []struct {
-		name                 string
-		naptanCode           string
-		when                 time.Time
-		request              string
-		response             string
-		nextTramTime         time.Time
-		buildError           error
-		parseError           error
-		sendError            error
-		expectedNextTramTime string
-		expectedError        error
+		name            string
+		naptanCode      string
+		when            time.Time
+		request         string
+		response        string
+		nextTramTime    time.Time
+		buildError      error
+		parseError      error
+		sendError       error
+		expectedError   error
+		expectedMessage string
 	}{
 		{
-			name:                 "Valid next tram time",
-			naptanCode:           "123456789",
-			when:                 now,
-			request:              "<Siri><ServiceRequest></ServiceRequest></Siri>",
-			response:             "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
-			nextTramTime:         nextTramTime,
-			expectedNextTramTime: "12:34PM",
+			name:            "Valid next tram time",
+			naptanCode:      "123456789",
+			when:            now,
+			request:         "<Siri><ServiceRequest></ServiceRequest></Siri>",
+			response:        "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
+			nextTramTime:    nextTramTime,
+			expectedMessage: "Your next tram is at 12:34PM",
+		},
+		{
+			name:            "No next tram times found",
+			naptanCode:      "123456789",
+			when:            now,
+			request:         "<Siri><ServiceRequest></ServiceRequest></Siri>",
+			response:        "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
+			parseError:      &traveline.NoTimesFoundError{},
+			expectedMessage: "No next departure times found",
 		},
 		{
 			name:          "Error building request",
@@ -93,9 +103,9 @@ func TestGetNextTram(t *testing.T) {
 				Return(test.nextTramTime, test.parseError).
 				AnyTimes()
 
-			req := traveline.Request{API: mockAPI}
+			req := request.NewRequest(mockAPI)
 
-			nextTramTime, err := req.GetNextTram(test.naptanCode, test.when)
+			message, err := req.GetNextTramTime(test.naptanCode, test.when)
 
 			if test.expectedError != nil {
 				if err == nil {
@@ -110,8 +120,8 @@ func TestGetNextTram(t *testing.T) {
 				}
 			}
 
-			if nextTramTime != test.expectedNextTramTime {
-				t.Fatalf("Expected response: %s, got: %s", test.expectedNextTramTime, nextTramTime)
+			if message != test.expectedMessage {
+				t.Fatalf("Expected response: %s, got: %s", test.expectedMessage, message)
 			}
 		})
 	}

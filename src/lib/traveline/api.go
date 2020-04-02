@@ -66,7 +66,7 @@ func (a *api) ParseResponse(response string) (time.Time, error) {
 
 	monitorStopVisits := siriResponse.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit
 	if len(monitorStopVisits) == 0 {
-		return time.Time{}, errors.New("No next departure times found")
+		return time.Time{}, &NoTimesFoundError{}
 	}
 
 	for i, monitorStopVisit := range monitorStopVisits {

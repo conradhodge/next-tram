@@ -17,6 +17,7 @@ test("Lambda is created with parameters given", () => {
     region: "eu-west-2",
     apiUsername: "api-username",
     apiPassword: "api-password",
+    naptanCode: "111222333",
     memorySize: 128,
     timeout: 10
   });
@@ -29,7 +30,8 @@ test("Lambda is created with parameters given", () => {
       Environment: {
         Variables: {
           TRAVELINE_API_USERNAME: "api-username",
-          TRAVELINE_API_PASSWORD: "api-password"
+          TRAVELINE_API_PASSWORD: "api-password",
+          NAPTAN_CODE: "111222333",
         }
       },
       MemorySize: 128,
@@ -52,6 +54,7 @@ test("Role is created to execute lambda", () => {
     region: "eu-west-2",
     apiUsername: "api-username",
     apiPassword: "api-password",
+    naptanCode: "111222333",
     memorySize: 128,
     timeout: 10
   });

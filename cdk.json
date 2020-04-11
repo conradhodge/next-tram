@@ -3,6 +3,7 @@
     "getNextTramLambdaMemorySize": 128,
     "getNextTramLambdaTimeout": 10,
     "travelineApiUsername": "",
-    "travelineApiPassword": ""
+    "travelineApiPassword": "",
+    "naptanCode": ""
   }
 }

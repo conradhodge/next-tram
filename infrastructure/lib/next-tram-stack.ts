@@ -11,6 +11,7 @@ export class NextTramStack extends Stack {
       region: this.region,
       apiUsername: this.node.tryGetContext("travelineApiUsername"),
       apiPassword: this.node.tryGetContext("travelineApiPassword"),
+      naptanCode: this.node.tryGetContext("naptanCode"),
       memorySize: this.node.tryGetContext("getNextTramLambdaMemorySize"),
       timeout: this.node.tryGetContext("getNextTramLambdaTimeout")
     });

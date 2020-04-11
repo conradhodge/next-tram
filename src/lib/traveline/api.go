@@ -36,7 +36,7 @@ func NewAPI(username string, password string, httpClient *http.Client) API {
 
 // Build will return the XML Siri request for the stop that the NaPTAN code represents
 func (a *api) BuildRequest(requestRef string, naptanCode string, when time.Time) (string, error) {
-	request := &SiriRequest{
+	siriRequest := &SiriRequest{
 		Version:                                siriVersion,
 		XMLNS:                                  siriXMLNS,
 		ServiceRequestRequestTimestamp:         when.Format(time.RFC3339),
@@ -46,7 +46,11 @@ func (a *api) BuildRequest(requestRef string, naptanCode string, when time.Time)
 		StopMonitoringRequestMonitoringRef:     naptanCode,
 	}
 
-	requestBody, err := xml.Marshal(request)
+	log.Printf("StopMonitoringRequestRequestTimestamp: %s", siriRequest.StopMonitoringRequestRequestTimestamp)
+	log.Printf("StopMonitoringRequestMessageIdentifier: %s", siriRequest.StopMonitoringRequestMessageIdentifier)
+	log.Printf("StopMonitoringRequestMonitoringRef: %s", siriRequest.StopMonitoringRequestMonitoringRef)
+
+	requestBody, err := xml.Marshal(siriRequest)
 	if err != nil {
 		return "", err
 	}
@@ -70,13 +74,15 @@ func (a *api) ParseResponse(response string) (time.Time, error) {
 	}
 
 	for i, monitorStopVisit := range monitorStopVisits {
+		log.Printf("MonitoringRef: %s", monitorStopVisit.MonitoringRef)
 		log.Printf(
-			"Index: %d, Vehicle: %s, Line: %s, Direction: %s, Time: %s",
+			"Index: %d, Vehicle: %s, Line: %s, Direction: %s, Aimed Departure Time: %s, Expected Departure Time: %s",
 			i,
 			monitorStopVisit.MonitoredVehicleJourney.VehicleMode,
 			monitorStopVisit.MonitoredVehicleJourney.PublishedLineName,
 			monitorStopVisit.MonitoredVehicleJourney.DirectionName,
 			monitorStopVisit.MonitoredVehicleJourney.MonitoredCall.AimedDepartureTime,
+			monitorStopVisit.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime,
 		)
 	}
 

@@ -37,7 +37,8 @@ type SiriResponse struct {
 					DirectionName     string `xml:"DirectionName"`
 					OperatorRef       string `xml:"OperatorRef"`
 					MonitoredCall     struct {
-						AimedDepartureTime string `xml:"AimedDepartureTime"`
+						AimedDepartureTime    string `xml:"AimedDepartureTime"`
+						ExpectedDepartureTime string `xml:"ExpectedDepartureTime"`
 					} `xml:"MonitoredCall"`
 				} `xml:"MonitoredVehicleJourney"`
 			} `xml:"MonitoredStopVisit"`

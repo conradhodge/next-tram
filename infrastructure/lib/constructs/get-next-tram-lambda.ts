@@ -27,6 +27,11 @@ export interface GetNextTramLambdaProps {
   readonly apiPassword: string;
 
   /**
+   * NaPTAN code of the tram stop for the next tram times
+   */
+  readonly naptanCode: string;
+
+  /**
    * The amount of memory, in MB, that is allocated to the Lambda function.
    */
   readonly memorySize: number
@@ -39,7 +44,8 @@ export interface GetNextTramLambdaProps {
 }
 
 /**
- * Create a lambda that uses the Traveline API to fetch the time of the next tram
+ * Create a lambda that uses the Traveline API to fetch the time of the next tram from a specific tram stop as
+ * defined by a NaPTAN code.
  */
 export class GetNextTramLambda extends Construct {
   /**
@@ -82,7 +88,8 @@ export class GetNextTramLambda extends Construct {
       timeout: Duration.seconds(props.timeout),
       environment: {
         TRAVELINE_API_USERNAME: props.apiUsername,
-        TRAVELINE_API_PASSWORD: props.apiPassword
+        TRAVELINE_API_PASSWORD: props.apiPassword,
+        NAPTAN_CODE: props.naptanCode
       },
       role: role
     });

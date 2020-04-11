@@ -12,8 +12,6 @@ import (
 	"github.com/conradhodge/next-tram/src/lib/traveline"
 )
 
-const naptanMalinBridge = "37090179"
-
 // Handler is the lambda hander
 func Handler() (alexa.Response, error) {
 	req := request.NewRequest(
@@ -24,7 +22,7 @@ func Handler() (alexa.Response, error) {
 		),
 	)
 
-	message, err := req.GetNextTramTime(naptanMalinBridge, time.Now())
+	message, err := req.GetNextTramTime(os.Getenv("NAPTAN_CODE"), time.Now())
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 		return alexa.NewSimpleResponse("Error", "Something went wrong"), err

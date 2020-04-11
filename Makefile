@@ -25,6 +25,7 @@ install: ## Install any specific tooling
 	go get golang.org/x/lint/golint
 	go get github.com/securego/gosec/cmd/gosec
 	go get github.com/golang/mock/mockgen
+	go generate ./...
 
 .PHONY: clean
 clean: ## Clean the local filesystem
@@ -82,7 +83,6 @@ test: test-go test-cdk ## Run all the tests
 
 .PHONY: test-go
 test-go: ## Run the Go tests
-	go generate ./...
 	go test ./... -coverprofile=coverage.out
 	go tool cover -func=coverage.out
 

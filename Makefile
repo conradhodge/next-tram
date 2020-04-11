@@ -39,18 +39,23 @@ clean: ## Clean the local filesystem
 ##
 
 .PHONY: vet
-vet: vet-go ## Vet the code
+vet: vet-go vet-cdk ## Vet the code
 
 .PHONY: vet-go
 vet-go: ## Vet the Go code
-	@echo "Vet the code..."
+	@echo "Vet the Go code..."
 	go vet -v ./...
 
-	@echo "Lint the code..."
+	@echo "Lint the Go code..."
 	$$GOPATH/bin/golint -set_exit_status $(shell go list ./...)
 
-	@echo "Inspect code for security vulnerabilities..."
+	@echo "Inspect Go code for security vulnerabilities..."
 	$$GOPATH/bin/gosec -exclude-dir build ./...
+
+.PHONY: vet-cdk
+vet-cdk: ## Vet the CDK code
+	@echo "Lint the CDK code..."
+	npm run lint
 
 
 ##

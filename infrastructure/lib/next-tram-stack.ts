@@ -6,7 +6,7 @@ export class NextTramStack extends Stack {
     super(scope, id, props);
 
     // Lambda to go get us the next tram time
-    const getNextTramLambda = new GetNextTramLambda(this, "GetNextTramLambda", {
+    new GetNextTramLambda(this, "GetNextTramLambda", {
       account: this.account,
       region: this.region,
       apiUsername: this.node.tryGetContext("travelineApiUsername"),

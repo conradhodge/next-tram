@@ -123,7 +123,7 @@ bootstrap: check-aws-details ## Bootstrap the CDK
 
 .PHONY: deploy
 deploy: check-api-credentials build bootstrap ## Create or update the infrastructure on AWS
-	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack -c travelineApiUsername=${USERNAME} -c travelineApiPassword=${PASSWORD}
+	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack -c travelineApiUsername=${USERNAME} -c travelineApiPassword=${PASSWORD} -c naptanCode=${NAPTAN_CODE}
 	./scripts/add-alexa-permission.sh
 
 .PHONY: diff

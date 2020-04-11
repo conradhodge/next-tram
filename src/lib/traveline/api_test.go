@@ -13,7 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestBuild(t *testing.T) {
+func TestBuildRequest(t *testing.T) {
 	when, _ := time.Parse(time.RFC3339, "2020-03-30T12:34:56+01:00")
 	naptanCode := "123456789"
 	api := traveline.NewAPI(
@@ -39,7 +39,7 @@ func TestBuild(t *testing.T) {
 	}
 }
 
-func TestParse(t *testing.T) {
+func TestParseResponse(t *testing.T) {
 	response := `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
 		<ServiceDelivery>
 			<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
@@ -60,6 +60,7 @@ func TestParse(t *testing.T) {
 						<OperatorRef>153</OperatorRef>
 						<MonitoredCall>
 							<AimedDepartureTime>2014-07-01T15:09:00.000+01:00</AimedDepartureTime>
+							<ExpectedDepartureTime>2014-07-01T15:12:00.000+01:00</ExpectedDepartureTime>
 						</MonitoredCall>
 					</MonitoredVehicleJourney>
 				</MonitoredStopVisit>
@@ -73,20 +74,26 @@ func TestParse(t *testing.T) {
 		&http.Client{},
 	)
 
-	nextTramTime, err := api.ParseResponse(response)
+	responseInfo, err := api.ParseResponse(response)
 
 	if err != nil {
 		t.Fatalf("Unexpected error: %s", err.Error())
 	}
 
-	expectedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:09:00.000+01:00")
+	aimedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:09:00.000+01:00")
+	expectedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:12:00.000+01:00")
+	expectedResponseInfo := &traveline.ResponseInfo{
+		DirectionName:         "Toddington, The Green",
+		AimedDepartureTime:    aimedNextTramTime,
+		ExpectedDepartureTime: expectedNextTramTime,
+	}
 
-	if diff := cmp.Diff(expectedNextTramTime, nextTramTime); diff != "" {
+	if diff := cmp.Diff(expectedResponseInfo, responseInfo); diff != "" {
 		t.Errorf("Actual next tram mismatch (-want +got):\n%s", diff)
 	}
 }
 
-func TestParseError(t *testing.T) {
+func TestParseResponseError(t *testing.T) {
 	tests := []struct {
 		name          string
 		response      string
@@ -96,6 +103,52 @@ func TestParseError(t *testing.T) {
 			name:          "Response is invalid XML",
 			response:      `<Siri xmlns="http://www.siri.org.uk/" version="1.0"><Siri`,
 			expectedError: "XML syntax error on line 1: unexpected EOF",
+		},
+		{
+			name: "Response contains invalid aimed departure time",
+			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
+				<ServiceDelivery>
+					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+					<StopMonitoringDelivery version="1.0">
+						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
+						<MonitoredStopVisit>
+							<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
+							<MonitoringRef>020035811</MonitoringRef>
+							<MonitoredVehicleJourney>
+								<MonitoredCall>
+									<AimedDepartureTime>unknown</AimedDepartureTime>
+									<ExpectedDepartureTime>2014-07-01T15:12:00.000+01:00</ExpectedDepartureTime>
+								</MonitoredCall>
+							</MonitoredVehicleJourney>
+						</MonitoredStopVisit>
+					</StopMonitoringDelivery>
+				</ServiceDelivery>
+			</Siri>`,
+			expectedError: `Invalid departure time "unknown" found: parsing time "unknown" as "2006-01-02T15:04:05Z07:00": cannot parse "unknown" as "2006"`,
+		},
+		{
+			name: "Response contains invalid expected departure time",
+			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
+				<ServiceDelivery>
+					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+					<StopMonitoringDelivery version="1.0">
+						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
+						<MonitoredStopVisit>
+							<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
+							<MonitoringRef>020035811</MonitoringRef>
+							<MonitoredVehicleJourney>
+								<MonitoredCall>
+									<AimedDepartureTime>2014-07-01T15:12:00.000+01:00</AimedDepartureTime>
+									<ExpectedDepartureTime>noidea</ExpectedDepartureTime>
+								</MonitoredCall>
+							</MonitoredVehicleJourney>
+						</MonitoredStopVisit>
+					</StopMonitoringDelivery>
+				</ServiceDelivery>
+			</Siri>`,
+			expectedError: `Invalid departure time "noidea" found: parsing time "noidea" as "2006-01-02T15:04:05Z07:00": cannot parse "noidea" as "2006"`,
 		},
 		{
 			name: "Response contains no next departure times",
@@ -121,11 +174,11 @@ func TestParseError(t *testing.T) {
 			_, err := api.ParseResponse(test.response)
 
 			if err == nil {
-				t.Fatal("Expected error")
+				t.Fatal("Expected error but got none")
 			}
 
 			if err.Error() != test.expectedError {
-				t.Fatalf("Expected error: %s, got: %s", test.expectedError, err.Error())
+				t.Fatalf("Expected error:\n%s\ngot:\n%s", test.expectedError, err.Error())
 			}
 		})
 	}

@@ -34,7 +34,7 @@ func (req *requests) GetNextTramTime(naptanCode string, when time.Time) (string,
 		return "", err
 	}
 
-	aimedDepartureTime, err := req.API.ParseResponse(response)
+	responseInfo, err := req.API.ParseResponse(response)
 	if err != nil {
 		if _, ok := err.(*traveline.NoTimesFoundError); ok {
 			return err.Error(), nil
@@ -42,6 +42,15 @@ func (req *requests) GetNextTramTime(naptanCode string, when time.Time) (string,
 		return "", err
 	}
 
+	// Format the Alexa response
+	aimedDepartureTime := responseInfo.AimedDepartureTime.Format(time.Kitchen)
+	message := "Your next tram to " + responseInfo.DirectionName + " is due at " + aimedDepartureTime
+
+	expectedDepartureTime := responseInfo.ExpectedDepartureTime.Format(time.Kitchen)
+	if aimedDepartureTime != expectedDepartureTime {
+		message = message + ", but is expected at " + expectedDepartureTime
+	}
+
 	// Convert to a simple readable time
-	return "Your next tram is at " + aimedDepartureTime.Format(time.Kitchen), nil
+	return message, nil
 }

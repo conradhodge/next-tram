@@ -17,6 +17,8 @@ import (
 func TestGetNextTram(t *testing.T) {
 	now := time.Now()
 	nextTramTime, _ := time.Parse(time.RFC3339, "2020-03-30T12:34:56.911+01:00")
+	nearlyNextTramTime, _ := time.Parse(time.RFC3339, "2020-03-30T12:34:58.911+01:00")
+	differsNextTramTime, _ := time.Parse(time.RFC3339, "2020-03-30T12:37:56.911+01:00")
 
 	tests := []struct {
 		name            string
@@ -24,7 +26,7 @@ func TestGetNextTram(t *testing.T) {
 		when            time.Time
 		request         string
 		response        string
-		nextTramTime    time.Time
+		responseInfo    *traveline.ResponseInfo
 		buildError      error
 		parseError      error
 		sendError       error
@@ -32,13 +34,43 @@ func TestGetNextTram(t *testing.T) {
 		expectedMessage string
 	}{
 		{
-			name:            "Valid next tram time",
-			naptanCode:      "123456789",
-			when:            now,
-			request:         "<Siri><ServiceRequest></ServiceRequest></Siri>",
-			response:        "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
-			nextTramTime:    nextTramTime,
-			expectedMessage: "Your next tram is at 12:34PM",
+			name:       "Aimed departure time differs from expected departure time",
+			naptanCode: "123456789",
+			when:       now,
+			request:    "<Siri><ServiceRequest></ServiceRequest></Siri>",
+			response:   "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
+			responseInfo: &traveline.ResponseInfo{
+				DirectionName:         "Xanadu",
+				AimedDepartureTime:    nextTramTime,
+				ExpectedDepartureTime: differsNextTramTime,
+			},
+			expectedMessage: "Your next tram to Xanadu is due at 12:34PM, but is expected at 12:37PM",
+		},
+		{
+			name:       "Aimed departure time nearly matches expected departure time",
+			naptanCode: "123456789",
+			when:       now,
+			request:    "<Siri><ServiceRequest></ServiceRequest></Siri>",
+			response:   "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
+			responseInfo: &traveline.ResponseInfo{
+				DirectionName:         "Xanadu",
+				AimedDepartureTime:    nextTramTime,
+				ExpectedDepartureTime: nearlyNextTramTime,
+			},
+			expectedMessage: "Your next tram to Xanadu is due at 12:34PM",
+		},
+		{
+			name:       "Aimed departure time matches expected departure time",
+			naptanCode: "123456789",
+			when:       now,
+			request:    "<Siri><ServiceRequest></ServiceRequest></Siri>",
+			response:   "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
+			responseInfo: &traveline.ResponseInfo{
+				DirectionName:         "Xanadu",
+				AimedDepartureTime:    nextTramTime,
+				ExpectedDepartureTime: nextTramTime,
+			},
+			expectedMessage: "Your next tram to Xanadu is due at 12:34PM",
 		},
 		{
 			name:            "No next tram times found",
@@ -100,7 +132,7 @@ func TestGetNextTram(t *testing.T) {
 			mockAPI.
 				EXPECT().
 				ParseResponse(gomock.Eq(test.response)).
-				Return(test.nextTramTime, test.parseError).
+				Return(test.responseInfo, test.parseError).
 				AnyTimes()
 
 			req := request.NewRequest(mockAPI)
@@ -121,7 +153,7 @@ func TestGetNextTram(t *testing.T) {
 			}
 
 			if message != test.expectedMessage {
-				t.Fatalf("Expected response: %s, got: %s", test.expectedMessage, message)
+				t.Fatalf("Expected response:\n%s\ngot:\n%s", test.expectedMessage, message)
 			}
 		})
 	}

@@ -14,7 +14,7 @@ import (
 // API represents the interface to the Traveline API
 type API interface {
 	BuildRequest(requestRef string, naptanCode string, when time.Time) (string, error)
-	ParseResponse(response string) (time.Time, error)
+	ParseResponse(response string) (*ResponseInfo, error)
 	Send(request string) (string, error)
 }
 
@@ -58,19 +58,26 @@ func (a *api) BuildRequest(requestRef string, naptanCode string, when time.Time)
 	return string(requestBody), nil
 }
 
+// ResponseInfo represents the details for the next stop response
+type ResponseInfo struct {
+	DirectionName         string
+	AimedDepartureTime    time.Time
+	ExpectedDepartureTime time.Time
+}
+
 // Parse the response from the Traveline API and return the time of the next tram
-func (a *api) ParseResponse(response string) (time.Time, error) {
+func (a *api) ParseResponse(response string) (*ResponseInfo, error) {
 	siriResponse := SiriResponse{}
 	err := xml.Unmarshal([]byte(response), &siriResponse)
 	if err != nil {
-		return time.Time{}, err
+		return nil, err
 	}
 
 	log.Printf("RequestMessageRef: %s", siriResponse.ServiceDelivery.StopMonitoringDelivery.RequestMessageRef)
 
 	monitorStopVisits := siriResponse.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit
 	if len(monitorStopVisits) == 0 {
-		return time.Time{}, &NoTimesFoundError{}
+		return nil, &NoTimesFoundError{}
 	}
 
 	for i, monitorStopVisit := range monitorStopVisits {
@@ -86,16 +93,37 @@ func (a *api) ParseResponse(response string) (time.Time, error) {
 		)
 	}
 
-	// Convert next departure time to time.Time
-	aimedDepartureTime, err := time.Parse(
-		time.RFC3339,
-		monitorStopVisits[0].MonitoredVehicleJourney.MonitoredCall.AimedDepartureTime,
-	)
+	monitoredVehicleJourney := monitorStopVisits[0].MonitoredVehicleJourney
+
+	// Convert aimed departure time to time.Time
+	aimedDepartureTime, err := a.convertDepartureTime(monitoredVehicleJourney.MonitoredCall.AimedDepartureTime)
 	if err != nil {
-		return time.Time{}, err
+		return nil, err
 	}
 
-	return aimedDepartureTime, nil
+	// Convert expected departure time to time.Time
+	expectedDepartureTime, err := a.convertDepartureTime(monitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ResponseInfo{
+		DirectionName:         monitoredVehicleJourney.DirectionName,
+		AimedDepartureTime:    aimedDepartureTime,
+		ExpectedDepartureTime: expectedDepartureTime,
+	}, nil
+}
+
+func (a *api) convertDepartureTime(departureTime string) (time.Time, error) {
+	convertedDepartureTime, err := time.Parse(time.RFC3339, departureTime)
+	if err != nil {
+		return time.Time{}, &InvalidTimeFoundError{
+			Time:   departureTime,
+			Reason: err.Error(),
+		}
+	}
+
+	return convertedDepartureTime, nil
 }
 
 // Send will send the request to Traveline API

@@ -1,0 +1,9 @@
+{
+  "context": {
+    "getNextTramLambdaMemorySize": 128,
+    "getNextTramLambdaTimeout": 10,
+    "travelineApiUsername": "api-username",
+    "travelineApiPassword": "api-password",
+    "naptanCode": "111222333"
+  }
+}

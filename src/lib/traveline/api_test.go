@@ -10,6 +10,7 @@ import (
 
 	"github.com/andreyvit/diff"
 	"github.com/conradhodge/next-tram/src/lib/traveline"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestBuild(t *testing.T) {
@@ -27,14 +28,14 @@ func TestBuild(t *testing.T) {
 		t.Fatalf("Unexpected error: %s", err.Error())
 	}
 
-	expectedRequestRegEx := `<Siri version="1.0" xmlns="http://www.siri.org.uk/"><ServiceRequest>` +
+	expectedRequest := `<Siri version="1.0" xmlns="http://www.siri.org.uk/"><ServiceRequest>` +
 		`<RequestTimestamp>2020-03-30T12:34:56+01:00</RequestTimestamp><RequestorRef>TravelineAPI999</RequestorRef>` +
 		`<StopMonitoringRequest><RequestTimestamp>2020-03-30T12:34:56+01:00</RequestTimestamp>` +
 		`<MessageIdentifier>ab7c1e9b-d06f-44cc-b190-4d36fb564386</MessageIdentifier>` +
 		`<MonitoringRef>123456789</MonitoringRef></StopMonitoringRequest></ServiceRequest></Siri>`
 
-	if request != expectedRequestRegEx {
-		t.Fatalf("Request not as expected:\n%s", diff.LineDiff(expectedRequestRegEx, request))
+	if request != expectedRequest {
+		t.Fatalf("Request not as expected (~~want ++got):\n%s", diff.CharacterDiff(expectedRequest, request))
 	}
 }
 
@@ -49,17 +50,17 @@ func TestParse(t *testing.T) {
 					<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
 					<MonitoringRef>020035811</MonitoringRef>
 					<MonitoredVehicleJourney>
-					<FramedVehicleJourneyRef>
-					<DataFrameRef>-</DataFrameRef>
-					<DatedVehicleJourneyRef>-</DatedVehicleJourneyRef>
-					</FramedVehicleJourneyRef>
-					<VehicleMode>bus</VehicleMode>
-					<PublishedLineName>42</PublishedLineName>
-					<DirectionName>Toddington, The Green</DirectionName>
-					<OperatorRef>153</OperatorRef>
-					<MonitoredCall>
-					<AimedDepartureTime>2014-07-01T15:09:00.000+01:00</AimedDepartureTime>
-					</MonitoredCall>
+						<FramedVehicleJourneyRef>
+							<DataFrameRef>-</DataFrameRef>
+							<DatedVehicleJourneyRef>-</DatedVehicleJourneyRef>
+						</FramedVehicleJourneyRef>
+						<VehicleMode>bus</VehicleMode>
+						<PublishedLineName>42</PublishedLineName>
+						<DirectionName>Toddington, The Green</DirectionName>
+						<OperatorRef>153</OperatorRef>
+						<MonitoredCall>
+							<AimedDepartureTime>2014-07-01T15:09:00.000+01:00</AimedDepartureTime>
+						</MonitoredCall>
 					</MonitoredVehicleJourney>
 				</MonitoredStopVisit>
 			</StopMonitoringDelivery>
@@ -80,8 +81,8 @@ func TestParse(t *testing.T) {
 
 	expectedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:09:00.000+01:00")
 
-	if nextTramTime != expectedNextTramTime {
-		t.Fatalf("Actual next tram %v, not as expected %v", expectedNextTramTime, nextTramTime)
+	if diff := cmp.Diff(expectedNextTramTime, nextTramTime); diff != "" {
+		t.Errorf("Actual next tram mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -147,25 +148,28 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 
 func TestSend(t *testing.T) {
 	tests := []struct {
-		name          string
-		request       string
-		response      string
-		statusCode    int
-		expectedError error
+		name             string
+		request          string
+		response         string
+		statusCode       int
+		expectedResponse string
+		expectedError    error
 	}{
 		{
-			name:          "200 response received from API request",
-			request:       "<Siri><ServiceRequest></ServiceRequest></Siri>",
-			response:      "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
-			statusCode:    http.StatusOK,
-			expectedError: nil,
+			name:             "200 response received from API request",
+			request:          "<Siri><ServiceRequest></ServiceRequest></Siri>",
+			response:         "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
+			statusCode:       http.StatusOK,
+			expectedResponse: "<Siri><ServiceDelivery></ServiceDelivery></Siri>",
+			expectedError:    nil,
 		},
 		{
-			name:          "401 response received from API request",
-			request:       "<Siri><ServiceRequest></ServiceRequest></Siri>",
-			response:      "Invalid user credentials",
-			statusCode:    http.StatusUnauthorized,
-			expectedError: errors.New("Error status from API: 401"),
+			name:             "401 response received from API request",
+			request:          "<Siri><ServiceRequest></ServiceRequest></Siri>",
+			response:         "Invalid user credentials",
+			statusCode:       http.StatusUnauthorized,
+			expectedResponse: "Invalid user credentials",
+			expectedError:    errors.New("Error status from API: 401"),
 		},
 	}
 	for _, test := range tests {
@@ -210,8 +214,8 @@ func TestSend(t *testing.T) {
 				}
 			}
 
-			if response != test.response {
-				t.Fatalf("Expected response: %s, got: %s", test.response, response)
+			if response != test.expectedResponse {
+				t.Fatalf("Unexpected response ~~want ++got):\n%s", diff.CharacterDiff(test.expectedResponse, response))
 			}
 		})
 	}

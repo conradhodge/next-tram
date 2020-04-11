@@ -26,8 +26,11 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Install
-      run: make install
+    - name: Get dependencies
+      run: |
+        PATH=$(go env GOPATH)/bin:$PATH
+        go get github.com/golang/mock/mockgen
+        make install
 
     - name: Vet
       run: make vet

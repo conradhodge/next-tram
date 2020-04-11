@@ -101,6 +101,10 @@ func (a *api) ParseResponse(response string) (time.Time, error) {
 // Send will send the request to Traveline API
 func (a *api) Send(request string) (string, error) {
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(request))
+	if err != nil {
+		return "", err
+	}
+
 	req.Header.Set("Content-type", contentType)
 	req.SetBasicAuth(a.Username, a.Password)
 

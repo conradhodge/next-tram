@@ -1,5 +1,7 @@
 # Next tram
 
+![build](https://github.com/conradhodge/win-dev/workflows/CI/badge.svg)
+
 An [Alexa skill](https://developer.amazon.com/en-US/alexa) to discover when the next tram is due using the [Traveline NextBuses API](https://www.travelinedata.org.uk/traveline-open-data/nextbuses-api/) and an [AWS Lambda](https://aws.amazon.com/lambda/) written in [Go](https://golang.org/).
 
 ## Setup

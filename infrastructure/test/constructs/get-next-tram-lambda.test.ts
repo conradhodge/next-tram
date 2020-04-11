@@ -1,4 +1,4 @@
-import { SynthUtils, haveResource, expect as exp } from "@aws-cdk/assert";
+import { haveResource, expect as exp } from "@aws-cdk/assert";
 import "@aws-cdk/assert/jest";
 import { Stack } from "@aws-cdk/core";
 import { GetNextTramLambda } from "../../lib/constructs/get-next-tram-lambda"

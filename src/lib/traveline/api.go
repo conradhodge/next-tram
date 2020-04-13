@@ -60,9 +60,11 @@ func (a *api) BuildRequest(requestRef string, naptanCode string, when time.Time)
 
 // ResponseInfo represents the details for the next stop response
 type ResponseInfo struct {
+	VehicleMode           string
+	LineName              string
 	DirectionName         string
-	AimedDepartureTime    time.Time
-	ExpectedDepartureTime time.Time
+	AimedDepartureTime    *time.Time
+	ExpectedDepartureTime *time.Time
 }
 
 // Parse the response from the Traveline API and return the time of the next tram
@@ -95,23 +97,29 @@ func (a *api) ParseResponse(response string) (*ResponseInfo, error) {
 
 	monitoredVehicleJourney := monitorStopVisits[0].MonitoredVehicleJourney
 
+	responseInfo := ResponseInfo{
+		LineName:      monitoredVehicleJourney.PublishedLineName,
+		VehicleMode:   monitoredVehicleJourney.VehicleMode,
+		DirectionName: monitoredVehicleJourney.DirectionName,
+	}
+
 	// Convert aimed departure time to time.Time
 	aimedDepartureTime, err := a.convertDepartureTime(monitoredVehicleJourney.MonitoredCall.AimedDepartureTime)
 	if err != nil {
 		return nil, err
 	}
+	responseInfo.AimedDepartureTime = &aimedDepartureTime
 
 	// Convert expected departure time to time.Time
-	expectedDepartureTime, err := a.convertDepartureTime(monitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime)
-	if err != nil {
-		return nil, err
+	if len(monitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime) > 0 {
+		expectedDepartureTime, err := a.convertDepartureTime(monitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime)
+		if err != nil {
+			return nil, err
+		}
+		responseInfo.ExpectedDepartureTime = &expectedDepartureTime
 	}
 
-	return &ResponseInfo{
-		DirectionName:         monitoredVehicleJourney.DirectionName,
-		AimedDepartureTime:    aimedDepartureTime,
-		ExpectedDepartureTime: expectedDepartureTime,
-	}, nil
+	return &responseInfo, nil
 }
 
 func (a *api) convertDepartureTime(departureTime string) (time.Time, error) {

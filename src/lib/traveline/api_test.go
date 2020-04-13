@@ -40,56 +40,105 @@ func TestBuildRequest(t *testing.T) {
 }
 
 func TestParseResponse(t *testing.T) {
-	response := `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
-		<ServiceDelivery>
-			<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-			<StopMonitoringDelivery version="1.0">
-				<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-				<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
-				<MonitoredStopVisit>
-					<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
-					<MonitoringRef>020035811</MonitoringRef>
-					<MonitoredVehicleJourney>
-						<FramedVehicleJourneyRef>
-							<DataFrameRef>-</DataFrameRef>
-							<DatedVehicleJourneyRef>-</DatedVehicleJourneyRef>
-						</FramedVehicleJourneyRef>
-						<VehicleMode>bus</VehicleMode>
-						<PublishedLineName>42</PublishedLineName>
-						<DirectionName>Toddington, The Green</DirectionName>
-						<OperatorRef>153</OperatorRef>
-						<MonitoredCall>
-							<AimedDepartureTime>2014-07-01T15:09:00.000+01:00</AimedDepartureTime>
-							<ExpectedDepartureTime>2014-07-01T15:12:00.000+01:00</ExpectedDepartureTime>
-						</MonitoredCall>
-					</MonitoredVehicleJourney>
-				</MonitoredStopVisit>
-			</StopMonitoringDelivery>
-		</ServiceDelivery>
-	</Siri>`
-
-	api := traveline.NewAPI(
-		"TravelineAPI999",
-		"letmein",
-		&http.Client{},
-	)
-
-	responseInfo, err := api.ParseResponse(response)
-
-	if err != nil {
-		t.Fatalf("Unexpected error: %s", err.Error())
-	}
-
 	aimedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:09:00.000+01:00")
 	expectedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:12:00.000+01:00")
-	expectedResponseInfo := &traveline.ResponseInfo{
-		DirectionName:         "Toddington, The Green",
-		AimedDepartureTime:    aimedNextTramTime,
-		ExpectedDepartureTime: expectedNextTramTime,
-	}
 
-	if diff := cmp.Diff(expectedResponseInfo, responseInfo); diff != "" {
-		t.Errorf("Actual next tram mismatch (-want +got):\n%s", diff)
+	tests := []struct {
+		name                 string
+		response             string
+		expectedResponseInfo *traveline.ResponseInfo
+	}{
+		{
+			name: "Response has aimed and expected departure time",
+			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
+				<ServiceDelivery>
+					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+					<StopMonitoringDelivery version="1.0">
+						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
+						<MonitoredStopVisit>
+							<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
+							<MonitoringRef>020035811</MonitoringRef>
+							<MonitoredVehicleJourney>
+								<FramedVehicleJourneyRef>
+									<DataFrameRef>-</DataFrameRef>
+									<DatedVehicleJourneyRef>-</DatedVehicleJourneyRef>
+								</FramedVehicleJourneyRef>
+								<VehicleMode>bus</VehicleMode>
+								<PublishedLineName>42</PublishedLineName>
+								<DirectionName>Toddington, The Green</DirectionName>
+								<OperatorRef>153</OperatorRef>
+								<MonitoredCall>
+									<AimedDepartureTime>2014-07-01T15:09:00.000+01:00</AimedDepartureTime>
+									<ExpectedDepartureTime>2014-07-01T15:12:00.000+01:00</ExpectedDepartureTime>
+								</MonitoredCall>
+							</MonitoredVehicleJourney>
+						</MonitoredStopVisit>
+					</StopMonitoringDelivery>
+				</ServiceDelivery>
+			</Siri>`,
+			expectedResponseInfo: &traveline.ResponseInfo{
+				VehicleMode:           "bus",
+				LineName:              "42",
+				DirectionName:         "Toddington, The Green",
+				AimedDepartureTime:    &aimedNextTramTime,
+				ExpectedDepartureTime: &expectedNextTramTime,
+			},
+		},
+		{
+			name: "Response has aimed but no expected departure time",
+			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
+				<ServiceDelivery>
+					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+					<StopMonitoringDelivery version="1.0">
+						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
+						<MonitoredStopVisit>
+							<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
+							<MonitoringRef>020035811</MonitoringRef>
+							<MonitoredVehicleJourney>
+								<FramedVehicleJourneyRef>
+									<DataFrameRef>-</DataFrameRef>
+									<DatedVehicleJourneyRef>-</DatedVehicleJourneyRef>
+								</FramedVehicleJourneyRef>
+								<VehicleMode>bus</VehicleMode>
+								<PublishedLineName>42</PublishedLineName>
+								<DirectionName>Toddington, The Green</DirectionName>
+								<OperatorRef>153</OperatorRef>
+								<MonitoredCall>
+									<AimedDepartureTime>2014-07-01T15:09:00.000+01:00</AimedDepartureTime>
+								</MonitoredCall>
+							</MonitoredVehicleJourney>
+						</MonitoredStopVisit>
+					</StopMonitoringDelivery>
+				</ServiceDelivery>
+			</Siri>`,
+			expectedResponseInfo: &traveline.ResponseInfo{
+				VehicleMode:        "bus",
+				LineName:           "42",
+				DirectionName:      "Toddington, The Green",
+				AimedDepartureTime: &aimedNextTramTime,
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			api := traveline.NewAPI(
+				"TravelineAPI999",
+				"letmein",
+				&http.Client{},
+			)
+
+			responseInfo, err := api.ParseResponse(test.response)
+
+			if err != nil {
+				t.Fatalf("Unexpected error: %s", err.Error())
+			}
+
+			if diff := cmp.Diff(test.expectedResponseInfo, responseInfo); diff != "" {
+				t.Errorf("Actual next tram mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
 

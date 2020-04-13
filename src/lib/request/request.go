@@ -1,6 +1,7 @@
 package request
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/conradhodge/next-tram/src/lib/traveline"
@@ -44,13 +45,18 @@ func (req *requests) GetNextTramTime(naptanCode string, when time.Time) (string,
 
 	// Format the Alexa response
 	aimedDepartureTime := responseInfo.AimedDepartureTime.Format(time.Kitchen)
-	message := "Your next tram to " + responseInfo.DirectionName + " is due at " + aimedDepartureTime
+	message := fmt.Sprintf("Your next %s tram to %s is due at %s",
+		responseInfo.LineName,
+		responseInfo.DirectionName,
+		aimedDepartureTime,
+	)
 
-	expectedDepartureTime := responseInfo.ExpectedDepartureTime.Format(time.Kitchen)
-	if aimedDepartureTime != expectedDepartureTime {
-		message = message + ", but is expected at " + expectedDepartureTime
+	if responseInfo.ExpectedDepartureTime != nil {
+		expectedDepartureTime := responseInfo.ExpectedDepartureTime.Format(time.Kitchen)
+		if aimedDepartureTime != expectedDepartureTime {
+			message = fmt.Sprintf("%s, but is expected at %s", message, expectedDepartureTime)
+		}
 	}
 
-	// Convert to a simple readable time
 	return message, nil
 }

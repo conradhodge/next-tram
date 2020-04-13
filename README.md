@@ -9,7 +9,7 @@ An [Alexa skill](https://developer.amazon.com/en-US/alexa) to discover when the 
 
 ### AWS Lambda
 
-You will require an [Amazon Web Services (AWS)](https://aws.amazon.com/account) account.
+You will require an [Amazon Web Services (AWS)](https://aws.amazon.com/account) account and credentials to use the [Traveline NextBuses API](https://www.travelinedata.org.uk/traveline-open-data/nextbuses-api/).
 
 Please ensure the following dependencies are installed:
 
@@ -38,7 +38,7 @@ Where:
 - `PASSWORD` - the password for the Traveline NextBuses API
 - `AWS_ACCOUNT_ID` - the AWS account ID to install the infrastructure
 - `AWS_REGION` - the AWS region to install the infrastructure
-- `NAPTAN_CODE` - the NaPTAN code of the tram stop for the next tram times
+- `NAPTAN_CODE` - the [NaPTAN](https://en.wikipedia.org/wiki/NaPTAN) code of the tram stop for the next tram times
 
 ### Alexa skill
 

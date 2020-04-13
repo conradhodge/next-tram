@@ -1,19 +1,20 @@
 #!/bin/bash
 
-LAMBDA_ARN=$(aws lambda get-function-configuration --function-name=get-next-tram-lambda | jq .FunctionArn | tr -d '"')
+FUNCTION_NAME=get-next-tram-lambda
+STATEMENT_ID=alexa
 
-printf "\nRemoving permission to allow Alexa to access the lambda...\n"
+if ! OUTPUT="$(aws lambda get-policy --function-name ${FUNCTION_NAME} 2>&1)"; then
+    if [ $(echo ${OUTPUT} | grep -c "ResourceNotFoundException") -gt 0 ]
+    then
+        printf "Adding resource-based policy to allow Alexa to access the lambda...\n"
 
-aws lambda remove-permission \
-    --function-name ${LAMBDA_ARN} \
-    --statement-id alexa \
-    --output text
-
-printf "\nAdding permission to allow Alexa to access the lambda...\n"
-
-aws lambda add-permission \
-    --function-name ${LAMBDA_ARN} \
-    --action lambda:InvokeFunction \
-    --statement-id alexa \
-    --principal alexa-appkit.amazon.com \
-    --output text
+        aws lambda add-permission \
+            --function-name ${FUNCTION_NAME} \
+            --statement-id ${STATEMENT_ID} \
+            --principal alexa-appkit.amazon.com \
+            --action lambda:InvokeFunction \
+            --output text
+    else
+        echo "Unexpected error:\n${OUTPUT}"
+    fi
+fi

@@ -148,7 +148,11 @@ func (a *api) Send(request string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if berr := resp.Body.Close(); berr != nil {
+			err = berr
+		}
+	}()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

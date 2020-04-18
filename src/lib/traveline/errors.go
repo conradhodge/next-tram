@@ -16,5 +16,5 @@ func (e InvalidTimeFoundError) Error() string {
 type NoTimesFoundError struct{}
 
 func (e NoTimesFoundError) Error() string {
-	return fmt.Sprint("No next departure times found")
+	return "No next departure times found"
 }

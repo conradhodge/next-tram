@@ -234,11 +234,11 @@ func TestParseResponseError(t *testing.T) {
 }
 
 // RoundTripFunc .
-type RoundTripFunc func(req *http.Request) *http.Response
+type RoundTripFunc func(req *http.Request) (*http.Response, error)
 
 // RoundTrip .
 func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req), nil
+	return f(req)
 }
 
 // NewTestClient returns *http.Client with Transport replaced to avoid making real calls
@@ -276,7 +276,7 @@ func TestSend(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			client := NewTestClient(func(req *http.Request) *http.Response {
+			client := NewTestClient(func(req *http.Request) (*http.Response, error) {
 				expectedURL := "https://nextbus.mxdata.co.uk/nextbuses/1.0/1"
 				if req.URL.String() != expectedURL {
 					t.Fatalf("Expected URL: %s, got: %s", expectedURL, req.URL.String())
@@ -293,7 +293,7 @@ func TestSend(t *testing.T) {
 					Body: ioutil.NopCloser(bytes.NewBufferString(test.response)),
 					// Must be set to non-nil value or it panics
 					Header: make(http.Header),
-				}
+				}, nil
 			})
 
 			api := traveline.NewAPI(
@@ -320,5 +320,53 @@ func TestSend(t *testing.T) {
 				t.Fatalf("Unexpected response ~~want ++got):\n%s", diff.CharacterDiff(test.expectedResponse, response))
 			}
 		})
+	}
+}
+
+func TestSendDoFails(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) (*http.Response, error) {
+		// Return an error so that Client.Do(req) fails
+		return nil, errors.New("Bang")
+	})
+
+	api := traveline.NewAPI(
+		"TravelineAPI999",
+		"letmein",
+		client,
+	)
+	_, err := api.Send("")
+	if err == nil {
+		t.Fatal("Expected error; got no error")
+	}
+}
+
+type errReader struct{}
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("test error")
+}
+func (errReader) Close() error {
+	return nil
+}
+
+func TestSendBodyReadAllFails(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			// Send response to be tested
+			Body: errReader{},
+			// Must be set to non-nil value or it panics
+			Header: make(http.Header),
+		}, nil
+	})
+
+	api := traveline.NewAPI(
+		"TravelineAPI999",
+		"letmein",
+		client,
+	)
+	_, err := api.Send("")
+	if err == nil {
+		t.Fatal("Expected error; got no error")
 	}
 }

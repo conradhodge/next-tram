@@ -24,6 +24,8 @@ install: ## Install any specific tooling
 	npm install
 	go get golang.org/x/lint/golint
 	go get github.com/securego/gosec/cmd/gosec
+	go get github.com/kisielk/errcheck
+	go get honnef.co/go/tools/cmd/staticcheck
 	go get github.com/golang/mock/mockgen
 	go generate ./...
 
@@ -48,6 +50,12 @@ vet-go: ## Vet the Go code
 
 	@echo "Lint the Go code..."
 	$$GOPATH/bin/golint -set_exit_status $(shell go list ./...)
+
+	@echo "Error check the Go code..."
+	$$GOPATH/bin/errcheck ./...
+
+	@echo "Perform static analysis on the Go code..."
+	$$GOPATH/bin/staticcheck ./...
 
 	@echo "Inspect Go code for security vulnerabilities..."
 	$$GOPATH/bin/gosec -exclude-dir build ./...

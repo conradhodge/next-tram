@@ -1,4 +1,5 @@
 {
+  "app": "npx ts-node ./infrastructure/bin/next-tram.ts",
   "context": {
     "getNextTramLambdaMemorySize": 128,
     "getNextTramLambdaTimeout": 10,

@@ -140,17 +140,17 @@ bootstrap: check-aws-details ## Bootstrap the CDK
 
 .PHONY: deploy
 deploy: check-api-credentials build bootstrap ## Create or update the infrastructure on AWS
-	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" deploy next-tram-stack -c travelineApiUsername=${USERNAME} -c travelineApiPassword=${PASSWORD} -c naptanCode=${NAPTAN_CODE}
+	npx cdk deploy next-tram-stack -c travelineApiUsername=${USERNAME} -c travelineApiPassword=${PASSWORD} -c naptanCode=${NAPTAN_CODE}
 	./scripts/add-alexa-permission.sh
 
 .PHONY: diff
 diff: build ## Compare the infrastructure with stack on AWS
-	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" diff next-tram-stack
+	npx cdk diff next-tram-stack
 
 .PHONY: synth
 synth: build ## Synthasise the infrastructure stack
-	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" synth next-tram-stack
+	npx cdk synth next-tram-stack
 
 .PHONY: destroy
 destroy: ## Destroy the infrastructure in AWS
-	npx cdk --app "npx ts-node ./infrastructure/bin/next-tram.ts" destroy next-tram-stack
+	npx cdk destroy next-tram-stack

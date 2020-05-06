@@ -13,16 +13,16 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestBuildRequest(t *testing.T) {
+func TestBuildServiceRequest(t *testing.T) {
 	when, _ := time.Parse(time.RFC3339, "2020-03-30T12:34:56+01:00")
 	naptanCode := "123456789"
-	api := traveline.NewAPI(
+	client := traveline.NewClient(
 		"TravelineAPI999",
 		"letmein",
 		&http.Client{},
 	)
 
-	request, err := api.BuildRequest("ab7c1e9b-d06f-44cc-b190-4d36fb564386", naptanCode, when)
+	request, err := client.BuildServiceRequest("ab7c1e9b-d06f-44cc-b190-4d36fb564386", naptanCode, when)
 
 	if err != nil {
 		t.Fatalf("Unexpected error: %s", err.Error())
@@ -39,14 +39,12 @@ func TestBuildRequest(t *testing.T) {
 	}
 }
 
-func TestParseResponse(t *testing.T) {
-	aimedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:09:00.000+01:00")
-	expectedNextTramTime, _ := time.Parse(time.RFC3339, "2014-07-01T15:12:00.000+01:00")
-
+func TestParseServiceDelivery(t *testing.T) {
 	tests := []struct {
 		name                 string
 		response             string
-		expectedResponseInfo *traveline.ResponseInfo
+		expectedNextTramInfo *traveline.MonitoredVehicleJourney
+		expectedError        error
 	}{
 		{
 			name: "Response has aimed and expected departure time",
@@ -61,8 +59,8 @@ func TestParseResponse(t *testing.T) {
 							<MonitoringRef>020035811</MonitoringRef>
 							<MonitoredVehicleJourney>
 								<FramedVehicleJourneyRef>
-									<DataFrameRef>-</DataFrameRef>
-									<DatedVehicleJourneyRef>-</DatedVehicleJourneyRef>
+									<DataFrameRef></DataFrameRef>
+									<DatedVehicleJourneyRef></DatedVehicleJourneyRef>
 								</FramedVehicleJourneyRef>
 								<VehicleMode>bus</VehicleMode>
 								<PublishedLineName>42</PublishedLineName>
@@ -77,12 +75,18 @@ func TestParseResponse(t *testing.T) {
 					</StopMonitoringDelivery>
 				</ServiceDelivery>
 			</Siri>`,
-			expectedResponseInfo: &traveline.ResponseInfo{
-				VehicleMode:           "bus",
-				LineName:              "42",
-				DirectionName:         "Toddington, The Green",
-				AimedDepartureTime:    &aimedNextTramTime,
-				ExpectedDepartureTime: &expectedNextTramTime,
+			expectedNextTramInfo: &traveline.MonitoredVehicleJourney{
+				VehicleMode:       "bus",
+				PublishedLineName: "42",
+				DirectionName:     "Toddington, The Green",
+				OperatorRef:       "153",
+				MonitoredCall: struct {
+					AimedDepartureTime    string "xml:\"AimedDepartureTime\""
+					ExpectedDepartureTime string "xml:\"ExpectedDepartureTime\""
+				}{
+					AimedDepartureTime:    "2014-07-01T15:09:00.000+01:00",
+					ExpectedDepartureTime: "2014-07-01T15:12:00.000+01:00",
+				},
 			},
 		},
 		{
@@ -98,8 +102,8 @@ func TestParseResponse(t *testing.T) {
 							<MonitoringRef>020035811</MonitoringRef>
 							<MonitoredVehicleJourney>
 								<FramedVehicleJourneyRef>
-									<DataFrameRef>-</DataFrameRef>
-									<DatedVehicleJourneyRef>-</DatedVehicleJourneyRef>
+									<DataFrameRef></DataFrameRef>
+									<DatedVehicleJourneyRef></DatedVehicleJourneyRef>
 								</FramedVehicleJourneyRef>
 								<VehicleMode>bus</VehicleMode>
 								<PublishedLineName>42</PublishedLineName>
@@ -113,121 +117,65 @@ func TestParseResponse(t *testing.T) {
 					</StopMonitoringDelivery>
 				</ServiceDelivery>
 			</Siri>`,
-			expectedResponseInfo: &traveline.ResponseInfo{
-				VehicleMode:        "bus",
-				LineName:           "42",
-				DirectionName:      "Toddington, The Green",
-				AimedDepartureTime: &aimedNextTramTime,
+			expectedNextTramInfo: &traveline.MonitoredVehicleJourney{
+				VehicleMode:       "bus",
+				PublishedLineName: "42",
+				DirectionName:     "Toddington, The Green",
+				OperatorRef:       "153",
+				MonitoredCall: struct {
+					AimedDepartureTime    string "xml:\"AimedDepartureTime\""
+					ExpectedDepartureTime string "xml:\"ExpectedDepartureTime\""
+				}{
+					AimedDepartureTime: "2014-07-01T15:09:00.000+01:00",
+				},
 			},
 		},
+		{
+			name: "Invalid response",
+			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
+				<ServiceDelivery>
+			</Siri>`,
+			expectedError: errors.New("XML syntax error on line 3: element <ServiceDelivery> closed by </Siri>"),
+		},
+		{
+			name: "No departure times found",
+			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
+				<ServiceDelivery>
+					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+					<StopMonitoringDelivery version="1.0">
+						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
+						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
+					</StopMonitoringDelivery>
+				</ServiceDelivery>
+			</Siri>`,
+			expectedError: traveline.NoTimesFoundError{},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			api := traveline.NewAPI(
+			client := traveline.NewClient(
 				"TravelineAPI999",
 				"letmein",
 				&http.Client{},
 			)
 
-			responseInfo, err := api.ParseResponse(test.response)
+			responseInfo, err := client.ParseServiceDelivery(test.response)
 
-			if err != nil {
-				t.Fatalf("Unexpected error: %s", err.Error())
+			if test.expectedError != nil {
+				if err == nil {
+					t.Fatalf("Expected error '%s'; got no error", test.expectedError)
+				}
+				if err.Error() != test.expectedError.Error() {
+					t.Fatalf("Expected error '%s'; got '%s'", test.expectedError.Error(), err.Error())
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("Expected no error; got '%s'", err)
+				}
 			}
 
-			if diff := cmp.Diff(test.expectedResponseInfo, responseInfo); diff != "" {
+			if diff := cmp.Diff(test.expectedNextTramInfo, responseInfo); diff != "" {
 				t.Errorf("Actual next tram mismatch (-want +got):\n%s", diff)
-			}
-		})
-	}
-}
-
-func TestParseResponseError(t *testing.T) {
-	tests := []struct {
-		name          string
-		response      string
-		expectedError string
-	}{
-		{
-			name:          "Response is invalid XML",
-			response:      `<Siri xmlns="http://www.siri.org.uk/" version="1.0"><Siri`,
-			expectedError: "XML syntax error on line 1: unexpected EOF",
-		},
-		{
-			name: "Response contains invalid aimed departure time",
-			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
-				<ServiceDelivery>
-					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-					<StopMonitoringDelivery version="1.0">
-						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
-						<MonitoredStopVisit>
-							<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
-							<MonitoringRef>020035811</MonitoringRef>
-							<MonitoredVehicleJourney>
-								<MonitoredCall>
-									<AimedDepartureTime>unknown</AimedDepartureTime>
-									<ExpectedDepartureTime>2014-07-01T15:12:00.000+01:00</ExpectedDepartureTime>
-								</MonitoredCall>
-							</MonitoredVehicleJourney>
-						</MonitoredStopVisit>
-					</StopMonitoringDelivery>
-				</ServiceDelivery>
-			</Siri>`,
-			expectedError: `Invalid departure time "unknown" found: parsing time "unknown" as "2006-01-02T15:04:05Z07:00": cannot parse "unknown" as "2006"`,
-		},
-		{
-			name: "Response contains invalid expected departure time",
-			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
-				<ServiceDelivery>
-					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-					<StopMonitoringDelivery version="1.0">
-						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
-						<MonitoredStopVisit>
-							<RecordedAtTime>2014-07-01T15:09:20.889+01:00</RecordedAtTime>
-							<MonitoringRef>020035811</MonitoringRef>
-							<MonitoredVehicleJourney>
-								<MonitoredCall>
-									<AimedDepartureTime>2014-07-01T15:12:00.000+01:00</AimedDepartureTime>
-									<ExpectedDepartureTime>noidea</ExpectedDepartureTime>
-								</MonitoredCall>
-							</MonitoredVehicleJourney>
-						</MonitoredStopVisit>
-					</StopMonitoringDelivery>
-				</ServiceDelivery>
-			</Siri>`,
-			expectedError: `Invalid departure time "noidea" found: parsing time "noidea" as "2006-01-02T15:04:05Z07:00": cannot parse "noidea" as "2006"`,
-		},
-		{
-			name: "Response contains no next departure times",
-			response: `<Siri xmlns="http://www.siri.org.uk/" version="1.0">
-				<ServiceDelivery>
-					<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-					<StopMonitoringDelivery version="1.0">
-						<ResponseTimestamp>2020-03-30T00:26:39.911+01:00</ResponseTimestamp>
-						<RequestMessageRef>64ed3eb6-6d84-4f79-ab57-deef38b06431</RequestMessageRef>
-					</StopMonitoringDelivery>
-				</ServiceDelivery>
-			</Siri>`,
-			expectedError: "No next departure times found",
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			api := traveline.NewAPI(
-				"TravelineAPI999",
-				"letmein",
-				&http.Client{},
-			)
-			_, err := api.ParseResponse(test.response)
-
-			if err == nil {
-				t.Fatal("Expected error but got none")
-			}
-
-			if err.Error() != test.expectedError {
-				t.Fatalf("Expected error:\n%s\ngot:\n%s", test.expectedError, err.Error())
 			}
 		})
 	}
@@ -296,12 +244,12 @@ func TestSend(t *testing.T) {
 				}, nil
 			})
 
-			api := traveline.NewAPI(
+			tlClient := traveline.NewClient(
 				"TravelineAPI999",
 				"letmein",
 				client,
 			)
-			response, err := api.Send(test.request)
+			response, err := tlClient.Send(test.request)
 
 			if test.expectedError != nil {
 				if err == nil {
@@ -329,12 +277,12 @@ func TestSendDoFails(t *testing.T) {
 		return nil, errors.New("Bang")
 	})
 
-	api := traveline.NewAPI(
+	tlClient := traveline.NewClient(
 		"TravelineAPI999",
 		"letmein",
 		client,
 	)
-	_, err := api.Send("")
+	_, err := tlClient.Send("")
 	if err == nil {
 		t.Fatal("Expected error; got no error")
 	}
@@ -360,12 +308,12 @@ func TestSendBodyReadAllFails(t *testing.T) {
 		}, nil
 	})
 
-	api := traveline.NewAPI(
+	tlClient := traveline.NewClient(
 		"TravelineAPI999",
 		"letmein",
 		client,
 	)
-	_, err := api.Send("")
+	_, err := tlClient.Send("")
 	if err == nil {
 		t.Fatal("Expected error; got no error")
 	}

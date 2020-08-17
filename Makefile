@@ -21,7 +21,11 @@ setup: clean install vet build test ## Set up for development
 
 .PHONY: install
 install: ## Install any specific tooling
+ifeq ($(CI),true)
+	npm ci
+else
 	npm install
+endif
 	go get golang.org/x/lint/golint
 	go get github.com/securego/gosec/cmd/gosec
 	go get github.com/kisielk/errcheck

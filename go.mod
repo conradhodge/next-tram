@@ -7,8 +7,8 @@ require (
 	github.com/arienmalec/alexa-go v0.0.0-20181025212142-975687393e90
 	github.com/aws/aws-lambda-go v1.19.1
 	github.com/golang/mock v1.4.4
-	github.com/google/go-cmp v0.5.1
-	github.com/google/uuid v1.1.1
+	github.com/google/go-cmp v0.5.2
+	github.com/google/uuid v1.1.2
 	github.com/kisielk/errcheck v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/securego/gosec v0.0.0-20200401082031-e946c8c39989 // indirect

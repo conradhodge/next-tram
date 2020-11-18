@@ -28,7 +28,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Get dependencies
+    - name: Install
       run: |
         PATH=$(go env GOPATH)/bin:$PATH
         go get github.com/golang/mock/mockgen
@@ -48,6 +48,24 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Configure AWS Credentials
+      if: ${{ github.ref == 'master' }}
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy
+      if: ${{ github.ref == 'master' }}
+      run: |
+        make deploy \
+          USERNAME=${{ secrets.TRAVELINE_API_USERNAME }} \
+          PASSWORD=${{ secrets.TRAVELINE_API_PASSWORD }} \
+          AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} \
+          AWS_REGION=${{ secrets.AWS_REGION }} \
+          NAPTAN_CODE=${{ secrets.NAPTAN_CODE }}
 
     - name: Update Go report card
       uses: creekorful/goreportcard-action@v1.0

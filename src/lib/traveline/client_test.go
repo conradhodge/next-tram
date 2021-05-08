@@ -219,7 +219,7 @@ func TestSend(t *testing.T) {
 			response:         "Invalid user credentials",
 			statusCode:       http.StatusUnauthorized,
 			expectedResponse: "Invalid user credentials",
-			expectedError:    errors.New("Error status from API: 401"),
+			expectedError:    errors.New("error status from API: 401"),
 		},
 	}
 	for _, test := range tests {
@@ -274,7 +274,7 @@ func TestSend(t *testing.T) {
 func TestSendDoFails(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) (*http.Response, error) {
 		// Return an error so that Client.Do(req) fails
-		return nil, errors.New("Bang")
+		return nil, errors.New("bang")
 	})
 
 	tlClient := traveline.NewClient(

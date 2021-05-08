@@ -60,7 +60,6 @@ func TestMatches(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestString(t *testing.T) {

@@ -109,7 +109,7 @@ func (c *Client) Send(request string) (string, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("Error response from API: %v", resp)
-		return string(body), errors.Errorf("Error status from API: %d", resp.StatusCode)
+		return string(body), errors.Errorf("error status from API: %d", resp.StatusCode)
 	}
 
 	return string(body), nil

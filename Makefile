@@ -1,3 +1,5 @@
+GO_CODE_PATH=./src/...
+
 .DEFAULT_GOAL := explain
 .PHONY: explain
 explain:
@@ -31,7 +33,7 @@ endif
 	go get github.com/kisielk/errcheck
 	go get honnef.co/go/tools/cmd/staticcheck
 	go get github.com/golang/mock/mockgen
-	go generate ./...
+	go generate $(GO_CODE_PATH)
 
 .PHONY: clean
 clean: ## Clean the local filesystem
@@ -50,19 +52,19 @@ vet: vet-go vet-cdk ## Vet the code
 .PHONY: vet-go
 vet-go: ## Vet the Go code
 	@echo "Vet the Go code..."
-	go vet -v ./...
+	go vet -v $(GO_CODE_PATH)
 
 	@echo "Lint the Go code..."
-	$$GOPATH/bin/golint -set_exit_status $(shell go list ./...)
+	$$GOPATH/bin/golint -set_exit_status $(shell go list $(GO_CODE_PATH))
 
 	@echo "Error check the Go code..."
-	$$GOPATH/bin/errcheck ./...
+	$$GOPATH/bin/errcheck $(GO_CODE_PATH)
 
 	@echo "Perform static analysis on the Go code..."
-	$$GOPATH/bin/staticcheck ./...
+	$$GOPATH/bin/staticcheck $(GO_CODE_PATH)
 
 	@echo "Inspect Go code for security vulnerabilities..."
-	$$GOPATH/bin/gosec -exclude-dir build ./...
+	$$GOPATH/bin/gosec -exclude-dir build $(GO_CODE_PATH)
 
 .PHONY: vet-cdk
 vet-cdk: ## Vet the CDK code
@@ -100,7 +102,7 @@ test: test-go test-cdk ## Run all the tests
 
 .PHONY: test-go
 test-go: ## Run the Go tests
-	go test ./... -coverprofile=coverage.out
+	go test $(GO_CODE_PATH) -coverprofile=coverage.out
 	go tool cover -func=coverage.out
 
 .PHONY: test-cdk
@@ -140,7 +142,10 @@ bootstrap: check-aws-details ## Bootstrap the CDK
 
 .PHONY: deploy
 deploy: check-api-credentials build bootstrap ## Create or update the infrastructure on AWS
-	npx cdk deploy next-tram-stack -c travelineApiUsername=${USERNAME} -c travelineApiPassword=${PASSWORD} -c naptanCode=${NAPTAN_CODE}
+	npx cdk deploy next-tram-stack \
+		-c travelineApiUsername=${USERNAME} \
+		-c travelineApiPassword=${PASSWORD} \
+		-c naptanCode=${NAPTAN_CODE}
 	./scripts/add-alexa-permission.sh
 
 .PHONY: diff

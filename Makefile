@@ -28,11 +28,7 @@ ifeq ($(CI),true)
 else
 	npm install
 endif
-	go get golang.org/x/lint/golint
-	go get github.com/securego/gosec/cmd/gosec
-	go get github.com/kisielk/errcheck
-	go get honnef.co/go/tools/cmd/staticcheck
-	go get github.com/golang/mock/mockgen
+	go install github.com/golang/mock/mockgen@v1.5.0
 	go generate $(GO_CODE_PATH)
 
 .PHONY: clean
@@ -47,27 +43,20 @@ clean: ## Clean the local filesystem
 ##
 
 .PHONY: vet
-vet: vet-go vet-cdk ## Vet the code
+vet: vet-go lint-cdk ## Vet the code
 
 .PHONY: vet-go
 vet-go: ## Vet the Go code
 	@echo "Vet the Go code..."
 	go vet -v $(GO_CODE_PATH)
 
+.PHONY: lint-go
+lint-go: ## Lint the Go code
 	@echo "Lint the Go code..."
-	$$GOPATH/bin/golint -set_exit_status $(shell go list $(GO_CODE_PATH))
+	golangci-lint run
 
-	@echo "Error check the Go code..."
-	$$GOPATH/bin/errcheck $(GO_CODE_PATH)
-
-	@echo "Perform static analysis on the Go code..."
-	$$GOPATH/bin/staticcheck $(GO_CODE_PATH)
-
-	@echo "Inspect Go code for security vulnerabilities..."
-	$$GOPATH/bin/gosec -exclude-dir build $(GO_CODE_PATH)
-
-.PHONY: vet-cdk
-vet-cdk: ## Vet the CDK code
+.PHONY: lint-cdk
+lint-cdk: ## Lint the CDK code
 	@echo "Lint the CDK code..."
 	npm run lint
 

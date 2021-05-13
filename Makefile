@@ -53,7 +53,7 @@ vet-go: ## Vet the Go code
 .PHONY: lint-go
 lint-go: ## Lint the Go code
 	@echo "Lint the Go code..."
-	golangci-lint run
+	golangci-lint run -v
 
 .PHONY: lint-cdk
 lint-cdk: ## Lint the CDK code

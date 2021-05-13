@@ -14,3 +14,6 @@ coverage
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# eslint
+.eslintcache

@@ -1,0 +1,4 @@
+{
+  "*.go": [ "go vet", "golangci-lint run", "make test-go" ],
+  "*.ts": [ "eslint --cache --fix", "make test-cdk" ]
+}

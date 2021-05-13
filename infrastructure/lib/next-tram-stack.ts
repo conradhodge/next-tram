@@ -1,5 +1,5 @@
-import { Construct, Stack, StackProps } from '@aws-cdk/core';
-import { GetNextTramLambda } from './constructs/get-next-tram-lambda'
+import { Construct, Stack, StackProps } from "@aws-cdk/core";
+import { GetNextTramLambda } from "./constructs/get-next-tram-lambda";
 
 export class NextTramStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -13,7 +13,7 @@ export class NextTramStack extends Stack {
       apiPassword: this.node.tryGetContext("travelineApiPassword"),
       naptanCode: this.node.tryGetContext("naptanCode"),
       memorySize: this.node.tryGetContext("getNextTramLambdaMemorySize"),
-      timeout: this.node.tryGetContext("getNextTramLambdaTimeout")
+      timeout: this.node.tryGetContext("getNextTramLambdaTimeout"),
     });
   }
 }

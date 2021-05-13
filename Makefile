@@ -43,7 +43,7 @@ clean: ## Clean the local filesystem
 ##
 
 .PHONY: vet
-vet: vet-go lint-cdk ## Vet the code
+vet: vet-go lint-cdk prettier ## Vet the code
 
 .PHONY: vet-go
 vet-go: ## Vet the Go code
@@ -60,6 +60,10 @@ lint-cdk: ## Lint the CDK code
 	@echo "Lint the CDK code..."
 	npm run lint
 
+.PHONY: prettier
+prettier: ## Run Prettier
+	@echo "Run Prettier"
+	npx prettier --check .
 
 ##
 # Build targets

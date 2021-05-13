@@ -1,5 +1,10 @@
 import { Construct, Duration, CfnOutput } from "@aws-cdk/core";
-import { PolicyDocument, PolicyStatement, Role, ServicePrincipal } from "@aws-cdk/aws-iam";
+import {
+  PolicyDocument,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from "@aws-cdk/aws-iam";
 import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
 
 /**
@@ -34,7 +39,7 @@ export interface GetNextTramLambdaProps {
   /**
    * The amount of memory, in MB, that is allocated to the Lambda function.
    */
-  readonly memorySize: number
+  readonly memorySize: number;
 
   /**
    * The function execution time (in seconds) after which Lambda terminates
@@ -64,17 +69,27 @@ export class GetNextTramLambda extends Construct {
     const logsPolicyDocument = new PolicyDocument({
       statements: [
         new PolicyStatement({
-          actions: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
-          resources: ["arn:aws:logs:" + props.region + ":" + props.account + ":log-group:/aws/lambda/*:*"]
-        })
-      ]
+          actions: [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+          ],
+          resources: [
+            "arn:aws:logs:" +
+              props.region +
+              ":" +
+              props.account +
+              ":log-group:/aws/lambda/*:*",
+          ],
+        }),
+      ],
     });
 
     // Define a role to execute the lambda
     const role = new Role(this, "GetNextTramLambdaRole", {
       roleName: name + "-role",
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
-      inlinePolicies: { logsPolicyDocument }
+      inlinePolicies: { logsPolicyDocument },
     });
 
     // Define a lambda function that will get the next tram
@@ -89,15 +104,15 @@ export class GetNextTramLambda extends Construct {
       environment: {
         TRAVELINE_API_USERNAME: props.apiUsername,
         TRAVELINE_API_PASSWORD: props.apiPassword,
-        NAPTAN_CODE: props.naptanCode
+        NAPTAN_CODE: props.naptanCode,
       },
-      role: role
+      role: role,
     });
 
     new CfnOutput(this, "LambdaARN", {
       description: "Get next tram Lambda ARN",
       value: lambdaFunction.functionArn,
-      exportName: name + "-arn"
+      exportName: name + "-arn",
     });
   }
 }

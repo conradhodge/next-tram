@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
@@ -13,56 +13,55 @@ jobs:
       GOPATH: /home/runner/go
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        id: node
 
-    - name: Set up Node
-      uses: actions/setup-node@v2
-      id: node
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "^1.16.4"
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: '^1.16.4'
+      - name: Check out code
+        uses: actions/checkout@v2
 
-    - name: Check out code
-      uses: actions/checkout@v2
+      - name: Install
+        run: |
+          go get github.com/golang/mock/mockgen
+          make install
 
-    - name: Install
-      run: |
-        go get github.com/golang/mock/mockgen
-        make install
+      - name: Vet
+        run: make vet
 
-    - name: Vet
-      run: make vet
+      - name: Build
+        run: make build
 
-    - name: Build
-      run: make build
+      - name: Test
+        run: make test
 
-    - name: Test
-      run: make test
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    - name: SonarCloud Scan
-      uses: sonarsource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Configure AWS Credentials
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Configure AWS Credentials
-      if: ${{ github.ref == 'refs/heads/master' }}
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Deploy
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          make deploy \
+            USERNAME=${{ secrets.TRAVELINE_API_USERNAME }} \
+            PASSWORD=${{ secrets.TRAVELINE_API_PASSWORD }} \
+            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} \
+            AWS_REGION=${{ secrets.AWS_REGION }} \
+            NAPTAN_CODE=${{ secrets.NAPTAN_CODE }}
 
-    - name: Deploy
-      if: ${{ github.ref == 'refs/heads/master' }}
-      run: |
-        make deploy \
-          USERNAME=${{ secrets.TRAVELINE_API_USERNAME }} \
-          PASSWORD=${{ secrets.TRAVELINE_API_PASSWORD }} \
-          AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} \
-          AWS_REGION=${{ secrets.AWS_REGION }} \
-          NAPTAN_CODE=${{ secrets.NAPTAN_CODE }}
-
-    - name: Update Go report card
-      uses: creekorful/goreportcard-action@v1.0
+      - name: Update Go report card
+        uses: creekorful/goreportcard-action@v1.0

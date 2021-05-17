@@ -19,7 +19,7 @@ explain:
 ##
 
 .PHONY: setup
-setup: clean install vet build test ## Set up for development
+setup: clean install build ## Set up for development
 
 .PHONY: install
 install: ## Install any specific tooling

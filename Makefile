@@ -77,9 +77,8 @@ DIRS=$(shell find src/lambda/* -type d)
 .PHONY: builders $(DIRS)
 builders: $(DIRS) ## Build all the underlying lambdas
 
-$(DIRS): ## Build each lambda and zip up
+$(DIRS): ## Build each lambda
 	cd $@ && GOOS=linux go build -o main ./...
-	cd $@ && zip handler.zip ./main
 
 .PHONY: build-cdk
 build-cdk: ## Build the CDK stacks

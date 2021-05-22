@@ -21,6 +21,10 @@ github.com/aws/jsii-runtime-go v1.26.0/go.mod h1:9ddMDdGQwew6pQrfuTID/LxDDrpyryb
 github.com/aws/jsii-runtime-go v1.28.0/go.mod h1:6tZnlstx8bAB3vnLFF9n8bbkI//LDblAek9zFyMXV3E=
 github.com/aws/jsii-runtime-go v1.29.0 h1:JH4GHSauYskfzREWaQMAMTXDRgNR2e5XeLbjD/xf9J0=
 github.com/aws/jsii-runtime-go v1.29.0/go.mod h1:6tZnlstx8bAB3vnLFF9n8bbkI//LDblAek9zFyMXV3E=
+github.com/conradhodge/travel-api-client v0.0.0-20210522110610-819b3925c89f h1:TwI/Qd9H0cGg6p4WhahgJsIRnqRwQs6r3B/x6HuIMcs=
+github.com/conradhodge/travel-api-client v0.0.0-20210522110610-819b3925c89f/go.mod h1:BxGbDPw+CksSRZKs9sLkvdDjFbTlbMRkkyflj3xwZZE=
+github.com/conradhodge/travel-api-client v0.1.0 h1:Yrp9ZA9LNz6mfIYNufzycMJsVTbLVhPDYpdY5l6Etcc=
+github.com/conradhodge/travel-api-client v0.1.0/go.mod h1:BxGbDPw+CksSRZKs9sLkvdDjFbTlbMRkkyflj3xwZZE=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/cpuguy83/go-md2man/v2 v2.0.0/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=

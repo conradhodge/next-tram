@@ -1,8 +1,8 @@
 # Go
 coverage.out
-src/lambda/*/handler.zip
-src/lambda/*/main
-src/lib/mock
+lambda/*/handler.zip
+lambda/*/main
+mock
 
 # Typescript
 *.js

@@ -1,4 +1,4 @@
-GO_CODE_PATH=./src/...
+GO_CODE_PATH=./lambda/...
 
 .DEFAULT_GOAL := explain
 .PHONY: explain
@@ -72,7 +72,7 @@ prettier: ## Run Prettier
 .PHONY: build
 build: builders build-cdk ## Build everything
 
-DIRS=$(shell find src/lambda/* -type d)
+DIRS=$(shell find lambda/* -type d)
 
 .PHONY: builders $(DIRS)
 builders: $(DIRS) ## Build all the underlying lambdas

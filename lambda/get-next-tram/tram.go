@@ -8,7 +8,7 @@ import (
 )
 
 func GetNextTram(req transport.API, naptanCode string) (string, error) {
-	nextTramInfo, err := req.GetNextTramTime(naptanCode, TimeNow())
+	nextTramInfo, err := req.GetNextDepartureTime(naptanCode, TimeNow())
 	if err != nil {
 		return "", err
 	}

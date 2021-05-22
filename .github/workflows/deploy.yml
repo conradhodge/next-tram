@@ -2,7 +2,7 @@ name: Deploy to AWS
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   deploy:
@@ -27,8 +27,8 @@ jobs:
       - name: Install
         run: make install
 
-      - name: Build
-        run: make build
+      - name: Test
+        run: make test
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1

@@ -2,9 +2,7 @@ name: Build
 
 on:
   pull_request:
-    branches: [master]
-  push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
@@ -39,18 +37,15 @@ jobs:
         run: make test
 
       - name: Convert Go coverage
-        if: ${{ github.ref != 'refs/heads/master' }}
         uses: jandelgado/gcov2lcov-action@v1.0.5
 
       - name: Publish Go code coverage
-        if: ${{ github.ref != 'refs/heads/master' }}
         uses: romeovs/lcov-reporter-action@v0.2.16
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           lcov-file: ./coverage.lcov
 
       - name: Publish CDK code coverage
-        if: ${{ github.ref != 'refs/heads/master' }}
         uses: romeovs/lcov-reporter-action@v0.2.16
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

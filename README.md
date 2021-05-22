@@ -1,6 +1,6 @@
 # Next tram
 
-![build](https://github.com/conradhodge/next-tram/workflows/build/badge.svg)
+![build](https://github.com/conradhodge/next-tram/workflows/Build/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=conradhodge_next-tram&metric=alert_status)](https://sonarcloud.io/dashboard?id=conradhodge_next-tram)
 [![Go Report Card](https://goreportcard.com/badge/github.com/conradhodge/next-tram?style=flat-square)](https://goreportcard.com/report/github.com/conradhodge/next-tram)
 

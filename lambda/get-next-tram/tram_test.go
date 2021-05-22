@@ -64,7 +64,7 @@ func TestGetNextTram(t *testing.T) {
 			// Mock the API
 			mockAPI := mock_transport.NewMockAPI(ctrl)
 
-			nextTramInfo := &transport.NextTramInfo{
+			nextTramInfo := &transport.DepartureInfo{
 				VehicleMode:           "magic carpet",
 				LineName:              "flying",
 				DirectionName:         "Xanadu",
@@ -74,7 +74,7 @@ func TestGetNextTram(t *testing.T) {
 
 			mockAPI.
 				EXPECT().
-				GetNextTramTime("123456", main.TimeNow()).
+				GetNextDepartureTime("123456", main.TimeNow()).
 				Return(nextTramInfo, tc.getNextTramTimeErr).
 				AnyTimes()
 

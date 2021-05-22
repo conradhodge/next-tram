@@ -96,7 +96,7 @@ export class GetNextTramLambda extends Construct {
     const lambdaFunction = new Function(this, "GetNextTramLambda", {
       functionName: name + "-lambda",
       description: "Lambda function that will get the next tram",
-      code: Code.fromAsset("src/lambda/get-next-tram/handler.zip"),
+      code: Code.fromAsset("src/lambda/get-next-tram"),
       handler: "main",
       runtime: Runtime.GO_1_X,
       memorySize: props.memorySize,

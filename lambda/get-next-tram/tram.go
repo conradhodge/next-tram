@@ -8,26 +8,31 @@ import (
 )
 
 func GetNextTram(req transport.API, naptanCode string) (string, error) {
-	nextTramInfo, err := req.GetNextDepartureTime(naptanCode, TimeNow())
+	currentTime := TimeNow()
+
+	nextTramInfo, err := req.GetNextDepartureTime(naptanCode, currentTime)
 	if err != nil {
 		return "", err
 	}
 
+	departureTime := getDepartureTime(nextTramInfo)
+	diff := departureTime.Sub(currentTime)
+
 	// Format the Alexa response
-	aimedDepartureTime := nextTramInfo.AimedDepartureTime.Format(time.Kitchen)
-	message := fmt.Sprintf("Your next %s %s to %s is due at %s",
+	message := fmt.Sprintf("Your next %s %s to %s is due in %d minutes at %s",
 		nextTramInfo.LineName,
 		nextTramInfo.VehicleMode,
 		nextTramInfo.DirectionName,
-		aimedDepartureTime,
+		int64(diff.Minutes()),
+		departureTime.Format(time.Kitchen),
 	)
 
-	if nextTramInfo.ExpectedDepartureTime != nil {
-		expectedDepartureTime := nextTramInfo.ExpectedDepartureTime.Format(time.Kitchen)
-		if aimedDepartureTime != expectedDepartureTime {
-			message = fmt.Sprintf("%s, but is expected at %s", message, expectedDepartureTime)
-		}
-	}
-
 	return message, nil
+}
+
+func getDepartureTime(nextTramInfo *transport.DepartureInfo) *time.Time {
+	if nextTramInfo.ExpectedDepartureTime != nextTramInfo.AimedDepartureTime {
+		return nextTramInfo.ExpectedDepartureTime
+	}
+	return nextTramInfo.AimedDepartureTime
 }

@@ -25,7 +25,7 @@ func Handler() (alexa.Response, error) {
 		return alexa.NewSimpleResponse("Error", "Something went wrong"), err
 	}
 
-	return alexa.NewSimpleResponse("Time of next tram", message), nil
+	return alexa.NewSimpleResponse("Next tram departure", message), nil
 }
 
 func main() {

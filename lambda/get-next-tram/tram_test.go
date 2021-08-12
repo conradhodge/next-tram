@@ -21,7 +21,7 @@ func TestGetNextTram(t *testing.T) {
 	defer func() { main.TimeNow = originalTimeNow }()
 
 	main.TimeNow = func() time.Time {
-		now, _ := time.Parse(time.RFC3339, "2021-05-22T20:00:00+01:00")
+		now, _ := time.Parse(time.RFC3339, "2021-05-22T12:30:00Z")
 		return now
 	}
 
@@ -39,13 +39,13 @@ func TestGetNextTram(t *testing.T) {
 			name:              "Aimed matches expected time",
 			aimedDeparture:    &firstTime,
 			expectedDeparture: &firstTime,
-			expectedMessage:   "Your next flying magic carpet to Xanadu is due at 12:34PM",
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 4 minutes at 12:34PM",
 		},
 		{
 			name:              "Aimed different than expected time",
 			aimedDeparture:    &firstTime,
 			expectedDeparture: &secondTime,
-			expectedMessage:   "Your next flying magic carpet to Xanadu is due at 12:34PM, but is expected at 12:36PM",
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 6 minutes at 12:36PM",
 		},
 		{
 			name:               "GetNextTramTime error",
@@ -86,7 +86,7 @@ func TestGetNextTram(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			assert.Equal(t, message, tc.expectedMessage)
+			assert.Equal(t, tc.expectedMessage, message)
 		})
 	}
 }

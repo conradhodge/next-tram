@@ -9,11 +9,11 @@ require (
 	github.com/aws/aws-lambda-go v1.24.0
 	github.com/aws/constructs-go/constructs/v3 v3.3.75
 	github.com/aws/jsii-runtime-go v1.29.0
-	github.com/conradhodge/travel-api-client v0.2.0
-	github.com/golang/mock v1.5.0
+	github.com/conradhodge/travel-api-client v0.2.1
+	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.5
 	github.com/google/renameio v1.0.1 // indirect
-	github.com/google/uuid v1.2.0
+	github.com/google/uuid v1.3.0
 	github.com/kisielk/errcheck v1.6.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/rogpeppe/go-internal v1.8.0 // indirect

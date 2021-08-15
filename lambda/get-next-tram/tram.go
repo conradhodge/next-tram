@@ -31,8 +31,11 @@ func GetNextTram(req transport.API, naptanCode string) (string, error) {
 }
 
 func getDepartureTime(nextTramInfo *transport.DepartureInfo) *time.Time {
-	if nextTramInfo.ExpectedDepartureTime != nextTramInfo.AimedDepartureTime {
+	if nextTramInfo.ExpectedDepartureTime != nil &&
+		nextTramInfo.ExpectedDepartureTime != nextTramInfo.AimedDepartureTime {
+
 		return nextTramInfo.ExpectedDepartureTime
 	}
+
 	return nextTramInfo.AimedDepartureTime
 }

@@ -42,6 +42,12 @@ func TestGetNextTram(t *testing.T) {
 			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 4 minutes at 12:34PM",
 		},
 		{
+			name:              "Expected time is nil",
+			aimedDeparture:    &firstTime,
+			expectedDeparture: nil,
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 4 minutes at 12:34PM",
+		},
+		{
 			name:              "Aimed different than expected time",
 			aimedDeparture:    &firstTime,
 			expectedDeparture: &secondTime,

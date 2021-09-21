@@ -1,22 +1,11 @@
 GO_CODE_PATH=./lambda/...
 
-.DEFAULT_GOAL := explain
-.PHONY: explain
-explain:
-	#### Next tram
-	#   _  _                     _                _
-	#  | \| |    ___    __ __   | |_      o O O  | |_      _ _   __ _    _ __
-	#  | .` |   / -_)   \ \ /   |  _|    o       |  _|    | '_| / _` |  | '  \
-	#  |_|\_|   \___|   /_\_\   _\__|   TS__[O]  _\__|   _|_|_  \__,_|  |_|_|_|
-	# _|"""""|_|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_|"""""|
-	# "`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'
-	#
-	### Targets
-	@cat Makefile* | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+.DEFAULT_GOAL:=help
+.PHONY: help
+help: ## Display this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-17s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-##
-# Setup targets
-##
+##@ Setup
 
 .PHONY: setup
 setup: clean install build ## Set up for development
@@ -38,9 +27,7 @@ clean: ## Clean the local filesystem
 	git clean -fdX
 
 
-##
-## Vet targets
-##
+##@ Vet
 
 .PHONY: vet
 vet: vet-go lint-cdk prettier ## Vet the code
@@ -65,9 +52,7 @@ prettier: ## Run Prettier
 	@echo "Run Prettier"
 	npx prettier --check .
 
-##
-# Build targets
-##
+##@ Build
 
 .PHONY: build
 build: builders build-cdk ## Build everything
@@ -85,9 +70,7 @@ build-cdk: ## Build the CDK stacks
 	npm run build
 
 
-##
-# Test targets
-##
+##@ Test
 
 .PHONY: test
 test: test-go test-cdk ## Run all the tests
@@ -102,9 +85,7 @@ test-cdk: build-cdk ## Run the CDK tests
 	npm run test
 
 
-##
-# Deployment targets
-##
+##@ Deployment
 
 .PHONY: check-aws-details
 check-aws-details: ## Check that the AWS details have been given
@@ -117,8 +98,8 @@ ifeq ($(AWS_REGION),)
 	@exit 1;
 endif
 
-.PHONY: check-api-credentials
-check-api-credentials: ## Check that the API credentials have been given
+.PHONY: check-api-creds
+check-api-creds: ## Check that the API credentials have been given
 ifeq ($(USERNAME),)
 	@echo "[Error] Please specify a USERNAME for the Traveline API"
 	@exit 1;
@@ -133,7 +114,7 @@ bootstrap: check-aws-details ## Bootstrap the CDK
 	npx cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 
 .PHONY: deploy
-deploy: check-api-credentials build bootstrap ## Create or update the infrastructure on AWS
+deploy: check-api-creds build bootstrap ## Create or update the infrastructure on AWS
 	npx cdk deploy next-tram-stack \
 		-c travelineApiUsername=${USERNAME} \
 		-c travelineApiPassword=${PASSWORD} \

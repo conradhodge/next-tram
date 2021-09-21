@@ -45,6 +45,8 @@ func getDue(departureTime *time.Time) string {
 
 	if due == 0 {
 		return "now"
+	} else if due == 1 {
+		return "in one minute"
 	}
 
 	return fmt.Sprintf("in %d minutes", due)

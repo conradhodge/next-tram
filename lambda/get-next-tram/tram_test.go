@@ -27,6 +27,7 @@ func TestGetNextTram(t *testing.T) {
 
 	firstTime, _ := time.Parse(time.RFC3339, "2021-05-22T12:34:56Z")
 	secondTime, _ := time.Parse(time.RFC3339, "2021-05-22T12:36:56Z")
+	inOneMinute, _ := time.Parse(time.RFC3339, "2021-05-22T12:31:00Z")
 	now, _ := time.Parse(time.RFC3339, "2021-05-22T12:30:00Z")
 
 	tests := []struct {
@@ -47,6 +48,12 @@ func TestGetNextTram(t *testing.T) {
 			aimedDeparture:    &now,
 			expectedDeparture: &now,
 			expectedMessage:   "Your next flying magic carpet to Xanadu is due now at 12:30PM",
+		},
+		{
+			name:              "Dpearture time is in one minute",
+			aimedDeparture:    &now,
+			expectedDeparture: &inOneMinute,
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in one minute at 12:31PM",
 		},
 		{
 			name:              "Expected time is nil",

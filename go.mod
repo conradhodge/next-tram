@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/arienmalec/alexa-go v0.0.0-20181025212142-975687393e90
-	github.com/aws/aws-lambda-go v1.26.0
-	github.com/conradhodge/travel-api-client v0.2.2
+	github.com/aws/aws-lambda-go v1.27.0
+	github.com/conradhodge/travel-api-client v0.2.3
 	github.com/golang/mock v1.6.0
 	github.com/stretchr/testify v1.7.0
 )

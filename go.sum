@@ -5,8 +5,12 @@ github.com/arienmalec/alexa-go v0.0.0-20181025212142-975687393e90 h1:/UEvmje8rZL
 github.com/arienmalec/alexa-go v0.0.0-20181025212142-975687393e90/go.mod h1:r3auYxsVOE8VOWVAGQn8eoZSwarziuVK+35Pi4dgtcM=
 github.com/aws/aws-lambda-go v1.26.0 h1:6ujqBpYF7tdZcBvPIccs98SpeGfrt/UOVEiexfNIdHA=
 github.com/aws/aws-lambda-go v1.26.0/go.mod h1:jJmlefzPfGnckuHdXX7/80O3BvUUi12XOkbv4w9SGLU=
+github.com/aws/aws-lambda-go v1.27.0 h1:aLzrJwdyHoF1A18YeVdJjX8Ixkd+bpogdxVInvHcWjM=
+github.com/aws/aws-lambda-go v1.27.0/go.mod h1:jJmlefzPfGnckuHdXX7/80O3BvUUi12XOkbv4w9SGLU=
 github.com/conradhodge/travel-api-client v0.2.2 h1:m/tBJw807WxfGsU9vJlHTL/7QXxDHV1MAiI/sonUWRc=
 github.com/conradhodge/travel-api-client v0.2.2/go.mod h1:AIZLqjhKqv45GuZxTOKHlDY5p1M1queSCs9FlYvfxPA=
+github.com/conradhodge/travel-api-client v0.2.3 h1:g6LKGEebWJJeOZ2XGk+zTF6MzEqRD+CU85HA021UcZQ=
+github.com/conradhodge/travel-api-client v0.2.3/go.mod h1:JH66vvhizHFWD3NaPZC+PTZi+RYIqu7irvhjEhT/3rM=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/cpuguy83/go-md2man/v2 v2.0.0/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

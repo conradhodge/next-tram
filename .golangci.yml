@@ -86,10 +86,6 @@ linters-settings:
     # minimal code complexity to report, 30 by default (but we recommend 10-20)
     min-complexity: 20
 
-  golint:
-    # minimal confidence for issues, default is 0.8
-    min-confidence: 0
-
   prealloc:
     # XXX: we don't recommend using this linter before doing performance profiling.
     # For most programs usage of prealloc will be a premature optimization.
@@ -118,13 +114,13 @@ linters:
     - gocognit
     - goconst
     - gocyclo
-    - golint
     - gosimple
     - gosec
     - govet
     - ineffassign
     - misspell
     - prealloc
+    - revive
     - staticcheck
     - structcheck
     - typecheck

@@ -17,7 +17,8 @@ ifeq ($(CI),true)
 else
 	npm install
 endif
-	go install github.com/golang/mock/mockgen@v1.5.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
+	go install github.com/golang/mock/mockgen@latest
 	go generate $(GO_CODE_PATH)
 
 .PHONY: clean
@@ -40,7 +41,7 @@ vet-go: ## Vet the Go code
 .PHONY: lint-go
 lint-go: ## Lint the Go code
 	@echo "Lint the Go code..."
-	golangci-lint run -v
+	./bin/golangci-lint run -v
 
 .PHONY: lint-cdk
 lint-cdk: ## Lint the CDK code

@@ -2,7 +2,8 @@
 coverage.out
 lambda/*/handler.zip
 lambda/*/main
-mock
+mock/
+bin/
 
 # Typescript
 *.js

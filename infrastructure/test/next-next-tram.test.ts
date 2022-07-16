@@ -1,6 +1,5 @@
-import { haveResource, expect as exp, haveType } from "@aws-cdk/assert";
-import "@aws-cdk/assert/jest";
-import { App } from "@aws-cdk/core";
+import { Capture, Match, Template } from "aws-cdk-lib/assertions";
+import * as cdk from "aws-cdk-lib";
 import { NextTramStack } from "../lib/next-tram-stack";
 
 /**
@@ -12,25 +11,27 @@ import { NextTramStack } from "../lib/next-tram-stack";
  */
 test("Stack is created with lambda", () => {
   const context = require("./cdk.json");
-  const app = new App(context);
-  const stack = new NextTramStack(app, "MyTestStack", {
+  const app = new cdk.App(context);
+  const stack = new NextTramStack(app, "TestStack", {
     env: { account: "999999999999", region: "eu-west-2" },
   });
-  exp(stack).to(
-    haveResource("AWS::Lambda::Function", {
-      FunctionName: "get-next-tram-lambda",
-      Description: "Lambda function that will get the next tram",
-      Handler: "main",
-      Runtime: "go1.x",
-      Environment: {
-        Variables: {
-          TRAVELINE_API_USERNAME: "api-username",
-          TRAVELINE_API_PASSWORD: "api-password",
-          NAPTAN_CODE: "111222333",
-        },
+
+  const template = Template.fromStack(stack);
+
+  template.resourceCountIs("AWS::Lambda::Function", 1);
+  template.hasResourceProperties("AWS::Lambda::Function", {
+    FunctionName: "get-next-tram-lambda",
+    Description: "Lambda function that will get the next tram",
+    Handler: "main",
+    Runtime: "go1.x",
+    Environment: {
+      Variables: {
+        TRAVELINE_API_USERNAME: "api-username",
+        TRAVELINE_API_PASSWORD: "api-password",
+        NAPTAN_CODE: "111222333",
       },
-      MemorySize: 128,
-      Timeout: 10,
-    })
-  );
+    },
+    MemorySize: 128,
+    Timeout: 10,
+  });
 });

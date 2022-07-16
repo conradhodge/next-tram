@@ -1,12 +1,7 @@
-import { Construct, Duration, CfnOutput } from "@aws-cdk/core";
-import {
-  PolicyDocument,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from "@aws-cdk/aws-iam";
-import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
-
+import { Construct } from "constructs";
+import { Duration, CfnOutput } from "aws-cdk-lib";
+import { aws_iam as iam } from "aws-cdk-lib";
+import { aws_lambda as lambda } from "aws-cdk-lib";
 /**
  * The props that will be required to instantiate a GetNextTramLambda construct
  */
@@ -66,9 +61,9 @@ export class GetNextTramLambda extends Construct {
     const name = "get-next-tram";
 
     // Define a policy statement to access the lambda log group
-    const logsPolicyDocument = new PolicyDocument({
+    const logsPolicyDocument = new iam.PolicyDocument({
       statements: [
-        new PolicyStatement({
+        new iam.PolicyStatement({
           actions: [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
@@ -86,19 +81,19 @@ export class GetNextTramLambda extends Construct {
     });
 
     // Define a role to execute the lambda
-    const role = new Role(this, "GetNextTramLambdaRole", {
+    const role = new iam.Role(this, "GetNextTramLambdaRole", {
       roleName: name + "-role",
-      assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
       inlinePolicies: { logsPolicyDocument },
     });
 
     // Define a lambda function that will get the next tram
-    const lambdaFunction = new Function(this, "GetNextTramLambda", {
+    const lambdaFunction = new lambda.Function(this, "GetNextTramLambda", {
       functionName: name + "-lambda",
       description: "Lambda function that will get the next tram",
-      code: Code.fromAsset("lambda/get-next-tram"),
+      code: lambda.Code.fromAsset("lambda/get-next-tram"),
       handler: "main",
-      runtime: Runtime.GO_1_X,
+      runtime: lambda.Runtime.GO_1_X,
       memorySize: props.memorySize,
       timeout: Duration.seconds(props.timeout),
       environment: {

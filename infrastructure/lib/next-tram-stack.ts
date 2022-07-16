@@ -1,4 +1,5 @@
-import { Construct, Stack, StackProps } from "@aws-cdk/core";
+import { Construct } from "constructs";
+import { Stack, StackProps } from "aws-cdk-lib";
 import { GetNextTramLambda } from "./constructs/get-next-tram-lambda";
 
 export class NextTramStack extends Stack {

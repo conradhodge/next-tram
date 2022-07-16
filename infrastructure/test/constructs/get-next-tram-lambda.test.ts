@@ -1,6 +1,5 @@
-import { haveResource, expect as exp } from "@aws-cdk/assert";
-import "@aws-cdk/assert/jest";
-import { Stack } from "@aws-cdk/core";
+import { Capture, Match, Template } from "aws-cdk-lib/assertions";
+import * as cdk from "aws-cdk-lib";
 import { GetNextTramLambda } from "../../lib/constructs/get-next-tram-lambda";
 
 /**
@@ -11,9 +10,8 @@ import { GetNextTramLambda } from "../../lib/constructs/get-next-tram-lambda";
  * @see https://aws.amazon.com/blogs/developer/testing-infrastructure-with-the-aws-cloud-development-kit-cdk/
  */
 test("Lambda is created with parameters given", () => {
-  const stack = new Stack(undefined, undefined, {
-    env: { account: "999999999999", region: "eu-west-2" },
-  });
+  const stack = new cdk.Stack();
+
   new GetNextTramLambda(stack, "TestInstance", {
     account: "999999999999",
     region: "eu-west-2",
@@ -23,23 +21,25 @@ test("Lambda is created with parameters given", () => {
     memorySize: 128,
     timeout: 10,
   });
-  exp(stack).to(
-    haveResource("AWS::Lambda::Function", {
-      FunctionName: "get-next-tram-lambda",
-      Description: "Lambda function that will get the next tram",
-      Handler: "main",
-      Runtime: "go1.x",
-      Environment: {
-        Variables: {
-          TRAVELINE_API_USERNAME: "api-username",
-          TRAVELINE_API_PASSWORD: "api-password",
-          NAPTAN_CODE: "111222333",
-        },
+
+  const template = Template.fromStack(stack);
+
+  template.resourceCountIs("AWS::Lambda::Function", 1);
+  template.hasResourceProperties("AWS::Lambda::Function", {
+    FunctionName: "get-next-tram-lambda",
+    Description: "Lambda function that will get the next tram",
+    Handler: "main",
+    Runtime: "go1.x",
+    Environment: {
+      Variables: {
+        TRAVELINE_API_USERNAME: "api-username",
+        TRAVELINE_API_PASSWORD: "api-password",
+        NAPTAN_CODE: "111222333",
       },
-      MemorySize: 128,
-      Timeout: 10,
-    })
-  );
+    },
+    MemorySize: 128,
+    Timeout: 10,
+  });
 });
 
 /**
@@ -50,9 +50,8 @@ test("Lambda is created with parameters given", () => {
  * @see https://aws.amazon.com/blogs/developer/testing-infrastructure-with-the-aws-cloud-development-kit-cdk/
  */
 test("Role is created to execute lambda", () => {
-  const stack = new Stack(undefined, undefined, {
-    env: { account: "999999999999", region: "eu-west-2" },
-  });
+  const stack = new cdk.Stack();
+
   new GetNextTramLambda(stack, "TestInstance", {
     account: "999999999999",
     region: "eu-west-2",
@@ -62,21 +61,23 @@ test("Role is created to execute lambda", () => {
     memorySize: 128,
     timeout: 10,
   });
-  exp(stack).to(
-    haveResource("AWS::IAM::Role", {
-      RoleName: "get-next-tram-role",
-      AssumeRolePolicyDocument: {
-        Statement: [
-          {
-            Action: "sts:AssumeRole",
-            Effect: "Allow",
-            Principal: {
-              Service: "lambda.amazonaws.com",
-            },
+
+  const template = Template.fromStack(stack);
+
+  template.resourceCountIs("AWS::IAM::Role", 1);
+  template.hasResourceProperties("AWS::IAM::Role", {
+    RoleName: "get-next-tram-role",
+    AssumeRolePolicyDocument: {
+      Statement: [
+        {
+          Action: "sts:AssumeRole",
+          Effect: "Allow",
+          Principal: {
+            Service: "lambda.amazonaws.com",
           },
-        ],
-        Version: "2012-10-17",
-      },
-    })
-  );
+        },
+      ],
+      Version: "2012-10-17",
+    },
+  });
 });

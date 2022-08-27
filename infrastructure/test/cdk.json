@@ -4,6 +4,7 @@
     "getNextTramLambdaTimeout": 10,
     "travelineApiUsername": "api-username",
     "travelineApiPassword": "api-password",
-    "naptanCode": "111222333"
+    "naptanCode": "111222333",
+    "localTimezone": "Europe/London"
   }
 }

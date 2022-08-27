@@ -20,6 +20,7 @@ test("Lambda is created with parameters given", () => {
     naptanCode: "111222333",
     memorySize: 128,
     timeout: 10,
+    localTimezone: "Europe/London",
   });
 
   const template = Template.fromStack(stack);
@@ -35,6 +36,7 @@ test("Lambda is created with parameters given", () => {
         TRAVELINE_API_USERNAME: "api-username",
         TRAVELINE_API_PASSWORD: "api-password",
         NAPTAN_CODE: "111222333",
+        LOCAL_TIMEZONE: "Europe/London",
       },
     },
     MemorySize: 128,
@@ -60,6 +62,7 @@ test("Role is created to execute lambda", () => {
     naptanCode: "111222333",
     memorySize: 128,
     timeout: 10,
+    localTimezone: "Europe/London",
   });
 
   const template = Template.fromStack(stack);

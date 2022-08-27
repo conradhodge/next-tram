@@ -15,6 +15,7 @@ export class NextTramStack extends Stack {
       naptanCode: this.node.tryGetContext("naptanCode"),
       memorySize: this.node.tryGetContext("getNextTramLambdaMemorySize"),
       timeout: this.node.tryGetContext("getNextTramLambdaTimeout"),
+      localTimezone: this.node.tryGetContext("localTimezone"),
     });
   }
 }

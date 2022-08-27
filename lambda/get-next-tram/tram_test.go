@@ -41,31 +41,31 @@ func TestGetNextTram(t *testing.T) {
 			name:              "Aimed matches expected time",
 			aimedDeparture:    &firstTime,
 			expectedDeparture: &firstTime,
-			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 4 minutes at 12:34PM",
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 4 minutes at 1:34PM",
 		},
 		{
 			name:              "Dpearture time is now",
 			aimedDeparture:    &now,
 			expectedDeparture: &now,
-			expectedMessage:   "Your next flying magic carpet to Xanadu is due now at 12:30PM",
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due now at 1:30PM",
 		},
 		{
 			name:              "Dpearture time is in one minute",
 			aimedDeparture:    &now,
 			expectedDeparture: &inOneMinute,
-			expectedMessage:   "Your next flying magic carpet to Xanadu is due in one minute at 12:31PM",
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in one minute at 1:31PM",
 		},
 		{
 			name:              "Expected time is nil",
 			aimedDeparture:    &firstTime,
 			expectedDeparture: nil,
-			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 4 minutes at 12:34PM",
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 4 minutes at 1:34PM",
 		},
 		{
 			name:              "Aimed different than expected time",
 			aimedDeparture:    &firstTime,
 			expectedDeparture: &secondTime,
-			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 6 minutes at 12:36PM",
+			expectedMessage:   "Your next flying magic carpet to Xanadu is due in 6 minutes at 1:36PM",
 		},
 		{
 			name:               "GetNextTramTime error",
@@ -76,6 +76,8 @@ func TestGetNextTram(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			main.LocalTimezone = "Europe/London"
+
 			// We need a controller
 			// https://github.com/golang/mock
 			ctrl := gomock.NewController(t)

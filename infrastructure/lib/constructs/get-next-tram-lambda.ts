@@ -41,6 +41,11 @@ export interface GetNextTramLambdaProps {
    * the function.
    */
   readonly timeout: number;
+
+  /**
+   * Timezone to output the tram times. e.g. "Europe/London"
+   */
+  readonly localTimezone: string;
 }
 
 /**
@@ -100,6 +105,7 @@ export class GetNextTramLambda extends Construct {
         TRAVELINE_API_USERNAME: props.apiUsername,
         TRAVELINE_API_PASSWORD: props.apiPassword,
         NAPTAN_CODE: props.naptanCode,
+        LOCAL_TIMEZONE: props.localTimezone,
       },
       role: role,
     });

@@ -7,6 +7,8 @@ import (
 	"github.com/conradhodge/travel-api-client/transport"
 )
 
+var LocalTimezone = "Local"
+
 func GetNextTram(req transport.API, naptanCode string) (string, error) {
 	nextTramInfo, err := req.GetNextDepartureTime(naptanCode, TimeNow())
 	if err != nil {
@@ -15,13 +17,21 @@ func GetNextTram(req transport.API, naptanCode string) (string, error) {
 
 	departureTime := getDepartureTime(nextTramInfo)
 
+	// Convert to local time
+	location, err := time.LoadLocation(LocalTimezone)
+	if err != nil {
+		return "", err
+	}
+
+	localDepartureTime := departureTime.In(location)
+
 	// Format the Alexa response
 	message := fmt.Sprintf("Your next %s %s to %s is due %s at %s",
 		nextTramInfo.LineName,
 		nextTramInfo.VehicleMode,
 		nextTramInfo.DirectionName,
-		getDue(departureTime),
-		departureTime.Format(time.Kitchen),
+		getDue(&localDepartureTime),
+		localDepartureTime.Format(time.Kitchen),
 	)
 
 	return message, nil

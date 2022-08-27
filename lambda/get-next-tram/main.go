@@ -20,6 +20,8 @@ func Handler() (alexa.Response, error) {
 		),
 	)
 
+	LocalTimezone = os.Getenv("LOCAL_TIMEZONE")
+
 	message, err := GetNextTram(req, os.Getenv("NAPTAN_CODE"))
 	if err != nil {
 		return alexa.NewSimpleResponse("Error", "Something went wrong"), err

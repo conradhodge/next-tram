@@ -5,6 +5,7 @@
     "getNextTramLambdaTimeout": 10,
     "travelineApiUsername": "",
     "travelineApiPassword": "",
-    "naptanCode": ""
+    "naptanCode": "",
+    "localTime": "Europe/London"
   }
 }

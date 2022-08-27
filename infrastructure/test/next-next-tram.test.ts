@@ -29,6 +29,7 @@ test("Stack is created with lambda", () => {
         TRAVELINE_API_USERNAME: "api-username",
         TRAVELINE_API_PASSWORD: "api-password",
         NAPTAN_CODE: "111222333",
+        LOCAL_TIMEZONE: "Europe/London",
       },
     },
     MemorySize: 128,

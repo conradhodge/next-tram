@@ -6,6 +6,6 @@
     "travelineApiUsername": "",
     "travelineApiPassword": "",
     "naptanCode": "",
-    "localTime": "Europe/London"
+    "localTimezone": "Europe/London"
   }
 }

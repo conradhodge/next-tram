@@ -18,6 +18,7 @@ Please ensure the following dependencies are installed:
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [Go](https://golang.org/) 1.14+
 - [AWS CLI](https://aws.amazon.com/cli/)
+- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) - to run Lambda locally
 
 Configure the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) in the WSL console.
 
@@ -40,6 +41,13 @@ Where:
 - `AWS_ACCOUNT_ID` - the AWS account ID to install the infrastructure
 - `AWS_REGION` - the AWS region to install the infrastructure
 - `NAPTAN_CODE` - the [NaPTAN](https://en.wikipedia.org/wiki/NaPTAN) code of the tram stop for the next tram times
+
+To run the Lambda locally using the AWS SAM:
+
+```shell
+make sam-synth-cdk USERNAME=[] PASSWORD=[] NAPTAN_CODE=[]
+make sam-local
+```
 
 ### Alexa skill
 

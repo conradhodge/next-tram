@@ -133,3 +133,19 @@ synth: build ## Synthasise the infrastructure stack
 .PHONY: destroy
 destroy: ## Destroy the infrastructure in AWS
 	npx cdk destroy next-tram-stack
+
+
+##@ AWS SAM
+
+.PHONY: sam-synth-cdk
+sam-synth-cdk: check-api-creds build ## Synthasise the infrastructure stack for AWS SAM
+	npx cdk synth next-tram-stack --no-staging \
+		-c travelineApiUsername=${USERNAME} \
+		-c travelineApiPassword=${PASSWORD} \
+		-c naptanCode=${NAPTAN_CODE}
+
+.PHONY: sam-local
+sam-local: ## Run Lambda locally using AWS SAM
+	sam local invoke GetNextTramLambda \
+		-e sam-event.json \
+		-t ./cdk.out/next-tram-stack.template.json

@@ -1,0 +1,28 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Lambda",
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "code",
+        "lambdaHandler": "GetNextTramLambda",
+        "projectRoot": "lambda/get-next-tram"
+      },
+      "lambda": {
+        "runtime": "go1.x",
+        "payload": {},
+        "environmentVariables": {
+          "TRAVELINE_API_USERNAME": "TravelineAPI564",
+          "TRAVELINE_API_PASSWORD": "SK7Hcd8A",
+          "NAPTAN_CODE": "37090179",
+          "LOCAL_TIMEZONE": "Europe/London"
+        }
+      }
+    }
+  ]
+}

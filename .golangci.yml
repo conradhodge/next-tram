@@ -54,10 +54,6 @@ output:
 
 # all available settings of specific linters
 linters-settings:
-  depguard:
-    list-type: blacklist
-    include-go-root: false
-
   dupl:
     # tokens count to trigger issue, 150 by default
     threshold: 100
@@ -107,8 +103,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
-    - depguard
     - dupl
     - errcheck
     - gocognit
@@ -122,8 +116,6 @@ linters:
     - prealloc
     - revive
     - staticcheck
-    - structcheck
     - typecheck
     - unused
-    - varcheck
     - whitespace

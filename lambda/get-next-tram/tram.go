@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/conradhodge/travel-api-client/transport"
 )

@@ -23,7 +23,7 @@ test("Stack is created with lambda", () => {
     FunctionName: "get-next-tram-lambda",
     Description: "Lambda function that will get the next tram",
     Handler: "bootstrap",
-    Runtime: "provided.al2",
+    Runtime: "provided.al2023",
     Environment: {
       Variables: {
         TRAVELINE_API_USERNAME: "api-username",

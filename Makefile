@@ -64,7 +64,7 @@ DIRS=$(shell find lambda/* -type d)
 builders: $(DIRS) ## Build all the underlying lambdas
 
 $(DIRS): ## Build each lambda - https://www.wolfe.id.au/2023/08/09/rip-aws-go-lambda-runtime/#why-is-this-hard
-	cd $@ && GOOS=linux go build -o bootstrap ./...
+	cd $@ && GOOS=linux CGO_ENABLED=0 go build -o bootstrap ./...
 
 .PHONY: build-cdk
 build-cdk: ## Build the CDK stacks

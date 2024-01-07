@@ -98,7 +98,7 @@ export class GetNextTramLambda extends Construct {
       description: "Lambda function that will get the next tram",
       code: lambda.Code.fromAsset("lambda/get-next-tram"),
       handler: "main",
-      runtime: lambda.Runtime.GO_1_X,
+      runtime: lambda.Runtime.PROVIDED_AL2023,
       memorySize: props.memorySize,
       timeout: Duration.seconds(props.timeout),
       environment: {

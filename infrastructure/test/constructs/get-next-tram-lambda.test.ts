@@ -30,7 +30,7 @@ test("Lambda is created with parameters given", () => {
     FunctionName: "get-next-tram-lambda",
     Description: "Lambda function that will get the next tram",
     Handler: "main",
-    Runtime: "go1.x",
+    Runtime: "provided.al2023",
     Environment: {
       Variables: {
         TRAVELINE_API_USERNAME: "api-username",

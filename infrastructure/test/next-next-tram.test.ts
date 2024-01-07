@@ -22,7 +22,7 @@ test("Stack is created with lambda", () => {
   template.hasResourceProperties("AWS::Lambda::Function", {
     FunctionName: "get-next-tram-lambda",
     Description: "Lambda function that will get the next tram",
-    Handler: "main",
+    Handler: "bootstrap",
     Runtime: "provided.al2",
     Environment: {
       Variables: {
